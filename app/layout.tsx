@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { Space_Grotesk, Work_Sans } from "next/font/google";
+import { Hind_Siliguri, Space_Grotesk, Work_Sans } from "next/font/google";
 import "./globals.css";
 
 const spaceGrotesk = Space_Grotesk({
@@ -14,6 +14,12 @@ const workSans = Work_Sans({
   weight: ["400", "500", "600", "700"],
 });
 
+const hindSiliguri = Hind_Siliguri({
+  variable: "--font-hind-siliguri",
+  subsets: ["bengali", "latin"],
+  weight: ["400", "500", "600"],
+});
+
 export const metadata: Metadata = {
   title: "PitchPerfect Admin",
   description: "Manage voice-analyzer users: create accounts, ban, and unban.",
@@ -21,7 +27,10 @@ export const metadata: Metadata = {
 
 export default function RootLayout({ children }: LayoutProps<"/">) {
   return (
-    <html lang="en" className={`${spaceGrotesk.variable} ${workSans.variable} h-full antialiased`}>
+    <html
+      lang="en"
+      className={`${spaceGrotesk.variable} ${workSans.variable} ${hindSiliguri.variable} h-full antialiased`}
+    >
       <body className="min-h-full flex flex-col font-sans">{children}</body>
     </html>
   );

@@ -1,5 +1,5 @@
 import "server-only";
-import type { AdminUser, ApiErrorBody, CreatedUser, UserListResult } from "./types";
+import type { AdminStatsSummary, AdminUser, ApiErrorBody, CreatedUser, Topic, TopicListResult, UserListResult } from "./types";
 
 const API_BASE_URL = process.env.API_BASE_URL ?? "http://localhost:4000/api/v1";
 
@@ -39,6 +39,10 @@ async function request<T>(
     throw new ApiClientError(res.status, body?.error?.message ?? `Request failed with status ${res.status}`);
   }
 
+  if (res.status === 204) {
+    return undefined as T;
+  }
+
   return res.json() as Promise<T>;
 }
 
@@ -74,4 +78,34 @@ export function banUser(token: string, id: string) {
 
 export function unbanUser(token: string, id: string) {
   return request<AdminUser>(`/admin/users/${id}/unban`, { method: "POST", token });
+}
+
+export function getAdminStatsSummary(token: string) {
+  return request<AdminStatsSummary>("/admin/stats/summary", { token });
+}
+
+export function listTopics(token: string, params: { q?: string; isActive?: boolean } = {}) {
+  return request<TopicListResult>("/admin/topics", {
+    token,
+    searchParams: {
+      q: params.q,
+      isActive: params.isActive === undefined ? undefined : String(params.isActive),
+    },
+  });
+}
+
+export function createTopic(token: string, input: { name: string; passage: string }) {
+  return request<Topic>("/admin/topics", { method: "POST", token, body: input });
+}
+
+export function updateTopic(
+  token: string,
+  id: string,
+  patch: { name?: string; passage?: string; isActive?: boolean }
+) {
+  return request<Topic>(`/admin/topics/${id}`, { method: "PATCH", token, body: patch });
+}
+
+export function deleteTopic(token: string, id: string) {
+  return request<void>(`/admin/topics/${id}`, { method: "DELETE", token });
 }
