@@ -7,6 +7,15 @@ function truncate(text: string, max = 90) {
   return text.length > max ? `${text.slice(0, max)}…` : text;
 }
 
+function Spinner({ className = "" }: { className?: string }) {
+  return (
+    <svg className={`animate-spin flex-shrink-0 ${className}`} width="14" height="14" viewBox="0 0 24 24" fill="none">
+      <circle cx="12" cy="12" r="9" stroke="currentColor" strokeWidth="3" opacity="0.25" />
+      <path d="M21 12a9 9 0 0 0-9-9" stroke="currentColor" strokeWidth="3" strokeLinecap="round" />
+    </svg>
+  );
+}
+
 export function TopicsManager() {
   const [topics, setTopics] = useState<Topic[]>([]);
   const [loading, setLoading] = useState(true);
@@ -22,7 +31,8 @@ export function TopicsManager() {
   const [editPassage, setEditPassage] = useState("");
   const [savingEdit, setSavingEdit] = useState(false);
 
-  const [pendingActionId, setPendingActionId] = useState<string | null>(null);
+  const [togglingId, setTogglingId] = useState<string | null>(null);
+  const [deletingId, setDeletingId] = useState<string | null>(null);
 
   const loadTopics = useCallback(async () => {
     setLoading(true);
@@ -91,7 +101,7 @@ export function TopicsManager() {
   }
 
   async function toggleActive(topic: Topic) {
-    setPendingActionId(topic.id);
+    setTogglingId(topic.id);
     try {
       const res = await fetch(`/api/topics/${topic.id}`, {
         method: "PATCH",
@@ -104,7 +114,7 @@ export function TopicsManager() {
     } catch (err) {
       setError(err instanceof Error ? err.message : "Action failed.");
     } finally {
-      setPendingActionId(null);
+      setTogglingId(null);
     }
   }
 
@@ -112,7 +122,7 @@ export function TopicsManager() {
     const confirmed = window.confirm(`Delete "${topic.name}"? This cannot be undone.`);
     if (!confirmed) return;
 
-    setPendingActionId(topic.id);
+    setDeletingId(topic.id);
     try {
       const res = await fetch(`/api/topics/${topic.id}`, { method: "DELETE" });
       if (!res.ok) {
@@ -123,7 +133,7 @@ export function TopicsManager() {
     } catch (err) {
       setError(err instanceof Error ? err.message : "Failed to delete topic.");
     } finally {
-      setPendingActionId(null);
+      setDeletingId(null);
     }
   }
 
@@ -161,8 +171,9 @@ export function TopicsManager() {
           <button
             type="submit"
             disabled={creating}
-            className="px-5 py-2.5 rounded-xl bg-accent text-accent-ink font-display font-semibold text-sm disabled:opacity-60"
+            className="px-5 py-2.5 rounded-xl bg-accent text-accent-ink font-display font-semibold text-sm disabled:opacity-60 flex items-center gap-2"
           >
+            {creating && <Spinner />}
             {creating ? "Creating…" : "Create topic"}
           </button>
         </div>
@@ -179,7 +190,9 @@ export function TopicsManager() {
         ) : (
           topics.map((topic) => {
             const isEditing = editingId === topic.id;
-            const isPending = pendingActionId === topic.id;
+            const isToggling = togglingId === topic.id;
+            const isDeleting = deletingId === topic.id;
+            const isPending = isToggling || isDeleting;
             return (
               <div key={topic.id} className="border border-border rounded-2xl bg-background-elevated p-5">
                 {isEditing ? (
@@ -251,9 +264,10 @@ export function TopicsManager() {
                         type="button"
                         disabled={isPending}
                         onClick={() => handleDelete(topic)}
-                        className="px-3.5 py-1.5 rounded-lg text-xs font-semibold border-[1.5px] border-danger text-danger disabled:opacity-50"
+                        className="px-3.5 py-1.5 rounded-lg text-xs font-semibold border-[1.5px] border-danger text-danger disabled:opacity-50 flex items-center gap-1.5"
                       >
-                        Delete
+                        {isDeleting && <Spinner />}
+                        {isDeleting ? "Deleting…" : "Delete"}
                       </button>
                     </div>
                   </div>
