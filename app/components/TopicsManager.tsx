@@ -2,18 +2,11 @@
 
 import { useCallback, useEffect, useState } from "react";
 import type { Topic } from "../lib/types";
+import { ConfirmDialog } from "./ConfirmDialog";
+import { Spinner } from "./Spinner";
 
 function truncate(text: string, max = 90) {
   return text.length > max ? `${text.slice(0, max)}…` : text;
-}
-
-function Spinner({ className = "" }: { className?: string }) {
-  return (
-    <svg className={`animate-spin flex-shrink-0 ${className}`} width="14" height="14" viewBox="0 0 24 24" fill="none">
-      <circle cx="12" cy="12" r="9" stroke="currentColor" strokeWidth="3" opacity="0.25" />
-      <path d="M21 12a9 9 0 0 0-9-9" stroke="currentColor" strokeWidth="3" strokeLinecap="round" />
-    </svg>
-  );
 }
 
 export function TopicsManager() {
@@ -33,6 +26,7 @@ export function TopicsManager() {
 
   const [togglingId, setTogglingId] = useState<string | null>(null);
   const [deletingId, setDeletingId] = useState<string | null>(null);
+  const [deleteCandidate, setDeleteCandidate] = useState<Topic | null>(null);
 
   const loadTopics = useCallback(async () => {
     setLoading(true);
@@ -118,9 +112,9 @@ export function TopicsManager() {
     }
   }
 
-  async function handleDelete(topic: Topic) {
-    const confirmed = window.confirm(`Delete "${topic.name}"? This cannot be undone.`);
-    if (!confirmed) return;
+  async function confirmDelete() {
+    const topic = deleteCandidate;
+    if (!topic) return;
 
     setDeletingId(topic.id);
     try {
@@ -130,8 +124,10 @@ export function TopicsManager() {
         throw new Error(body?.error?.message ?? "Failed to delete topic.");
       }
       setTopics((prev) => prev.filter((t) => t.id !== topic.id));
+      setDeleteCandidate(null);
     } catch (err) {
       setError(err instanceof Error ? err.message : "Failed to delete topic.");
+      setDeleteCandidate(null);
     } finally {
       setDeletingId(null);
     }
@@ -263,7 +259,7 @@ export function TopicsManager() {
                       <button
                         type="button"
                         disabled={isPending}
-                        onClick={() => handleDelete(topic)}
+                        onClick={() => setDeleteCandidate(topic)}
                         className="px-3.5 py-1.5 rounded-lg text-xs font-semibold border-[1.5px] border-danger text-danger disabled:opacity-50 flex items-center gap-1.5"
                       >
                         {isDeleting && <Spinner />}
@@ -277,6 +273,20 @@ export function TopicsManager() {
           })
         )}
       </div>
+
+      {deleteCandidate && (
+        <ConfirmDialog
+          title="Delete topic"
+          message={`Delete "${deleteCandidate.name}"? This cannot be undone.`}
+          confirmLabel="Delete"
+          danger
+          loading={deletingId === deleteCandidate.id}
+          onConfirm={confirmDelete}
+          onCancel={() => {
+            if (deletingId !== deleteCandidate.id) setDeleteCandidate(null);
+          }}
+        />
+      )}
     </div>
   );
 }
