@@ -1,5 +1,15 @@
 import "server-only";
-import type { AdminStatsSummary, AdminUser, ApiErrorBody, CreatedUser, Topic, TopicListResult, UserListResult } from "./types";
+import type {
+  AdminStatsSummary,
+  AdminUser,
+  ApiErrorBody,
+  CreatedUser,
+  ScoreCategory,
+  ScoreCategoryListResult,
+  Topic,
+  TopicListResult,
+  UserListResult,
+} from "./types";
 
 const API_BASE_URL = process.env.API_BASE_URL ?? "http://localhost:4000/api/v1";
 
@@ -108,4 +118,26 @@ export function updateTopic(
 
 export function deleteTopic(token: string, id: string) {
   return request<void>(`/admin/topics/${id}`, { method: "DELETE", token });
+}
+
+export function listScoreCategories(token: string, params: { q?: string; isActive?: boolean } = {}) {
+  return request<ScoreCategoryListResult>("/admin/score-categories", {
+    token,
+    searchParams: {
+      q: params.q,
+      isActive: params.isActive === undefined ? undefined : String(params.isActive),
+    },
+  });
+}
+
+export function createScoreCategory(token: string, input: { name: string }) {
+  return request<ScoreCategory>("/admin/score-categories", { method: "POST", token, body: input });
+}
+
+export function updateScoreCategory(token: string, id: string, patch: { name?: string; isActive?: boolean }) {
+  return request<ScoreCategory>(`/admin/score-categories/${id}`, { method: "PATCH", token, body: patch });
+}
+
+export function deleteScoreCategory(token: string, id: string) {
+  return request<void>(`/admin/score-categories/${id}`, { method: "DELETE", token });
 }

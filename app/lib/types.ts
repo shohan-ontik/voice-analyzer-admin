@@ -48,3 +48,19 @@ export type TopicListResult = {
   page: number;
   pageSize: number;
 };
+
+// Mirrors voice-analyzer-api's ScoreCategory model / /admin/score-categories endpoints.
+export type ScoreCategory = {
+  id: string;
+  name: string;
+  isActive: boolean;
+  createdAt: string;
+  updatedAt: string;
+};
+
+export type ScoreCategoryListResult = {
+  items: ScoreCategory[];
+  total: number;
+  page: number;
+  pageSize: number;
+};
