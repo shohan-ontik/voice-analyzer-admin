@@ -138,7 +138,8 @@ export function TopicsManager() {
       <div>
         <h1 className="font-display font-bold text-[26px] text-foreground mb-1">Topics</h1>
         <p className="text-[14px] text-foreground-muted">
-          Manage the practice scenarios and Bangla scripts reps see in the app.
+          Manage the practice topics reps see in the app. Each topic&apos;s text is the key facts
+          to cover, not a script — reps pitch in their own words and are marked on accuracy.
         </p>
       </div>
 
@@ -157,7 +158,7 @@ export function TopicsManager() {
         />
         <textarea
           required
-          placeholder="Bangla passage the rep will read aloud…"
+          placeholder="Bangla key facts the rep's pitch should cover (not a verbatim script)…"
           value={passage}
           onChange={(e) => setPassage(e.target.value)}
           rows={3}
