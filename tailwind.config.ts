@@ -23,6 +23,14 @@ export default {
           DEFAULT: "var(--danger)",
           soft: "var(--danger-soft)",
         },
+        success: {
+          DEFAULT: "var(--success)",
+          soft: "var(--success-soft)",
+        },
+        warning: {
+          DEFAULT: "var(--warning)",
+          soft: "var(--warning-soft)",
+        },
         teal: {
           DEFAULT: "var(--teal)",
           soft: "var(--teal-soft)",

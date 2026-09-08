@@ -1,5 +1,7 @@
 import "server-only";
 import type {
+  AdminModuleDetail,
+  AdminModuleSummary,
   AdminStatsSummary,
   AdminUser,
   ApiErrorBody,
@@ -78,7 +80,7 @@ export function listUsers(token: string, params: { page?: number; pageSize?: num
   });
 }
 
-export function createUser(token: string, input: { email: string; name: string }) {
+export function createUser(token: string, input: { email: string; name: string; employeeId?: string }) {
   return request<CreatedUser>("/admin/users", { method: "POST", token, body: input });
 }
 
@@ -140,4 +142,24 @@ export function updateScoreCategory(token: string, id: string, patch: { name?: s
 
 export function deleteScoreCategory(token: string, id: string) {
   return request<void>(`/admin/score-categories/${id}`, { method: "DELETE", token });
+}
+
+export function listAdminModules(token: string) {
+  return request<{ items: AdminModuleSummary[] }>("/admin/modules", { token });
+}
+
+export function createAdminModule(token: string, input: { title: string; description?: string; thumbnailUrl?: string }) {
+  return request<AdminModuleSummary>("/admin/modules", { method: "POST", token, body: input });
+}
+
+export function getAdminModule(token: string, id: string) {
+  return request<AdminModuleDetail>(`/admin/modules/${id}`, { token });
+}
+
+export function updateAdminModule(
+  token: string,
+  id: string,
+  patch: { title?: string; description?: string; thumbnailUrl?: string; isActive?: boolean }
+) {
+  return request<AdminModuleSummary>(`/admin/modules/${id}`, { method: "PATCH", token, body: patch });
 }

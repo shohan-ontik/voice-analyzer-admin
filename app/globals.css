@@ -2,16 +2,20 @@
 @config "../tailwind.config.ts";
 
 :root {
-  --background: oklch(97% 0.015 75);
-  --background-elevated: oklch(99% 0.006 75);
-  --foreground: oklch(22% 0.03 40);
-  --foreground-muted: oklch(46% 0.02 45);
-  --border: oklch(89% 0.018 60);
-  --accent: oklch(64% 0.17 35);
-  --accent-ink: oklch(99% 0.01 35);
-  --accent-soft: oklch(93% 0.035 35);
+  --background: oklch(97% 0.006 275);
+  --background-elevated: oklch(100% 0 0);
+  --foreground: oklch(21% 0.03 265);
+  --foreground-muted: oklch(50% 0.02 265);
+  --border: oklch(90% 0.008 265);
+  --accent: oklch(51% 0.22 275);
+  --accent-ink: oklch(99% 0.005 275);
+  --accent-soft: oklch(94% 0.03 275);
   --danger: oklch(55% 0.19 25);
   --danger-soft: oklch(93% 0.045 25);
+  --success: oklch(58% 0.13 152);
+  --success-soft: oklch(93% 0.035 152);
+  --warning: oklch(75% 0.15 85);
+  --warning-soft: oklch(95% 0.045 85);
   --teal: oklch(52% 0.09 195);
   --teal-soft: oklch(91% 0.03 195);
 }

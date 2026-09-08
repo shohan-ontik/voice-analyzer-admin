@@ -50,7 +50,7 @@ export default function LoginPage() {
             </svg>
           </div>
           <span className="font-display font-bold text-xl tracking-tight text-foreground">
-            PitchPerfect <span className="text-foreground-muted font-medium">Admin</span>
+            SalesTrain Pro <span className="text-foreground-muted font-medium">Admin</span>
           </span>
         </div>
 

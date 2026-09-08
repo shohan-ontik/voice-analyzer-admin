@@ -21,7 +21,7 @@ const hindSiliguri = Hind_Siliguri({
 });
 
 export const metadata: Metadata = {
-  title: "PitchPerfect Admin",
+  title: "SalesTrain Pro Admin Console",
   description: "Manage voice-analyzer users: create accounts, ban, and unban.",
 };
 

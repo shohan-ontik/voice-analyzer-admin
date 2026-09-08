@@ -8,6 +8,9 @@ export type AdminUser = {
   isBanned: boolean;
   mustChangePassword: boolean;
   lastLoginAt: string | null;
+  employeeId: string | null;
+  department: string | null;
+  jobTitle: string | null;
   createdAt: string;
 };
 
@@ -63,4 +66,37 @@ export type ScoreCategoryListResult = {
   total: number;
   page: number;
   pageSize: number;
+};
+
+// Mirrors GET /admin/modules list items.
+export type AdminModuleSummary = {
+  id: string;
+  slug: string;
+  title: string;
+  description: string;
+  thumbnailUrl: string | null;
+  isActive: boolean;
+  chapterCount: number;
+  examCount: number;
+  updatedAt: string;
+};
+
+// Mirrors GET /admin/modules/:id — a read-only content preview (chapters +
+// materials + exam). No authoring endpoints exist yet for any of these
+// nested entities.
+export type AdminModuleDetail = {
+  id: string;
+  slug: string;
+  title: string;
+  description: string;
+  thumbnailUrl: string | null;
+  isActive: boolean;
+  chapters: {
+    id: string;
+    slug: string;
+    title: string;
+    description: string;
+    materials: { id: string; type: "video" | "pdf" | "audio"; title: string; meta: string }[];
+  }[];
+  exam: { id: string; title: string; passMark: number; scenario: string } | null;
 };
