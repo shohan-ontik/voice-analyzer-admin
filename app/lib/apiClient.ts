@@ -1,5 +1,7 @@
 import "server-only";
 import type {
+  AdminChapter,
+  AdminExam,
   AdminModuleDetail,
   AdminModuleSummary,
   AdminStatsSummary,
@@ -159,7 +161,63 @@ export function getAdminModule(token: string, id: string) {
 export function updateAdminModule(
   token: string,
   id: string,
-  patch: { title?: string; description?: string; thumbnailUrl?: string; isActive?: boolean }
+  patch: { title?: string; description?: string; thumbnailUrl?: string; isActive?: boolean; publishDate?: string | null }
 ) {
   return request<AdminModuleSummary>(`/admin/modules/${id}`, { method: "PATCH", token, body: patch });
+}
+
+export function deleteAdminModule(token: string, id: string) {
+  return request<void>(`/admin/modules/${id}`, { method: "DELETE", token });
+}
+
+export function createChapter(token: string, moduleId: string, input: { title: string; description?: string }) {
+  return request<AdminChapter>(`/admin/modules/${moduleId}/chapters`, { method: "POST", token, body: input });
+}
+
+export function updateChapter(
+  token: string,
+  moduleId: string,
+  chapterId: string,
+  patch: { title?: string; description?: string }
+) {
+  return request<AdminChapter>(`/admin/modules/${moduleId}/chapters/${chapterId}`, {
+    method: "PATCH",
+    token,
+    body: patch,
+  });
+}
+
+export function deleteChapter(token: string, moduleId: string, chapterId: string) {
+  return request<void>(`/admin/modules/${moduleId}/chapters/${chapterId}`, { method: "DELETE", token });
+}
+
+export async function uploadMaterial(token: string, moduleId: string, chapterId: string, formData: FormData) {
+  const res = await fetch(`${API_BASE_URL}/admin/modules/${moduleId}/chapters/${chapterId}/materials`, {
+    method: "POST",
+    headers: { Authorization: `Bearer ${token}` },
+    body: formData,
+    cache: "no-store",
+  });
+
+  if (!res.ok) {
+    const body = (await res.json().catch(() => null)) as ApiErrorBody | null;
+    throw new ApiClientError(res.status, body?.error?.message ?? `Request failed with status ${res.status}`);
+  }
+
+  return res.json();
+}
+
+export function deleteMaterial(token: string, moduleId: string, chapterId: string, materialId: string) {
+  return request<void>(`/admin/modules/${moduleId}/chapters/${chapterId}/materials/${materialId}`, {
+    method: "DELETE",
+    token,
+  });
+}
+
+export function upsertExam(
+  token: string,
+  moduleId: string,
+  patch: { scenario?: string; deadlineDays?: number | null; passMark?: number }
+) {
+  return request<AdminExam>(`/admin/modules/${moduleId}/exam`, { method: "PUT", token, body: patch });
 }

@@ -298,3 +298,23 @@ export function HeadphoneIcon(props: IconProps) {
     </svg>
   );
 }
+
+export function TrashIcon(props: IconProps) {
+  return (
+    <svg {...base(props)}>
+      <polyline points="3 6 5 6 21 6" />
+      <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2" />
+      <line x1="10" y1="11" x2="10" y2="17" />
+      <line x1="14" y1="11" x2="14" y2="17" />
+    </svg>
+  );
+}
+
+export function SparklesIcon(props: IconProps) {
+  return (
+    <svg {...base({ ...props, fill: "currentColor", stroke: "none" })}>
+      <path d="M12 2.5c.3 2.7 1 4.5 2.3 5.9 1.4 1.3 3.2 2 5.9 2.3-2.7.3-4.5 1-5.9 2.3-1.3 1.4-2 3.2-2.3 5.9-.3-2.7-1-4.5-2.3-5.9-1.4-1.3-3.2-2-5.9-2.3 2.7-.3 4.5-1 5.9-2.3 1.3-1.4 2-3.2 2.3-5.9Z" />
+      <path d="M19 15.5c.15 1.35.5 2.25 1.15 2.95.7.65 1.6 1 2.95 1.15-1.35.15-2.25.5-2.95 1.15-.65.7-1 1.6-1.15 2.95-.15-1.35-.5-2.25-1.15-2.95-.7-.65-1.6-1-2.95-1.15 1.35-.15 2.25-.5 2.95-1.15.65-.7 1-1.6 1.15-2.95Z" />
+    </svg>
+  );
+}

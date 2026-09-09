@@ -89,7 +89,7 @@ export function ModulesManager() {
         <button
           type="button"
           onClick={() => setShowCreateModal(true)}
-          className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-accent text-accent-ink font-display font-semibold text-[13.5px] shrink-0"
+          className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-accent text-accent-ink font-display font-semibold text-[13.5px] shrink-0 cursor-pointer"
         >
           <PlusIcon size={16} />
           Create New Module
@@ -114,7 +114,7 @@ export function ModulesManager() {
               key={f.key}
               type="button"
               onClick={() => setFilter(f.key)}
-              className={`px-4 py-2 rounded-full text-[13px] font-semibold border transition-colors ${
+              className={`px-4 py-2 rounded-full text-[13px] font-semibold border transition-colors cursor-pointer ${
                 filter === f.key
                   ? "bg-accent-soft text-accent border-accent/30"
                   : "bg-background-elevated text-foreground-muted border-border hover:text-foreground"

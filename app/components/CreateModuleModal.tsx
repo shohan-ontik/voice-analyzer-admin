@@ -44,7 +44,7 @@ export function CreateModuleModal({
       >
         <div className="flex items-center justify-between mb-5">
           <h2 className="font-display font-bold text-[18px] text-foreground">Create New Module</h2>
-          <button type="button" onClick={onClose} className="text-foreground-muted hover:text-foreground p-1">
+          <button type="button" onClick={onClose} className="text-foreground-muted hover:text-foreground p-1 cursor-pointer">
             <XIcon size={18} />
           </button>
         </div>
@@ -89,7 +89,7 @@ export function CreateModuleModal({
           <button
             type="submit"
             disabled={creating}
-            className="mt-1 py-3 rounded-xl bg-accent text-accent-ink font-display font-semibold text-sm disabled:opacity-60"
+            className="mt-1 py-3 rounded-xl bg-accent text-accent-ink font-display font-semibold text-sm disabled:opacity-60 cursor-pointer disabled:cursor-not-allowed"
           >
             {creating ? "Creating…" : "Create module"}
           </button>

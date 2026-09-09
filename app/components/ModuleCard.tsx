@@ -44,7 +44,7 @@ export function ModuleCard({
             <button
               type="button"
               onClick={() => setMenuOpen((v) => !v)}
-              className="text-foreground-muted hover:text-foreground p-1 -m-1"
+              className="text-foreground-muted hover:text-foreground p-1 -m-1 cursor-pointer"
               aria-label="Module actions"
             >
               <MoreVerticalIcon size={18} />
@@ -58,7 +58,7 @@ export function ModuleCard({
                     setMenuOpen(false);
                     onTogglePublish(m);
                   }}
-                  className="w-full text-left px-3.5 py-2 text-[13px] font-semibold text-foreground-muted hover:text-foreground disabled:opacity-50"
+                  className="w-full text-left px-3.5 py-2 text-[13px] font-semibold text-foreground-muted hover:text-foreground disabled:opacity-50 cursor-pointer disabled:cursor-not-allowed"
                 >
                   {m.isActive ? "Unpublish" : "Publish"}
                 </button>
@@ -100,7 +100,7 @@ export function ModuleCard({
             Edit Content
           </Link>
           <Link
-            href={`/modules/${m.id}#exam`}
+            href={`/modules/${m.id}#assessment`}
             className="flex-1 text-center px-4 py-2.5 rounded-lg border border-border bg-background text-foreground font-display font-semibold text-[13px]"
           >
             Manage Exams

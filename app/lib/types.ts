@@ -81,9 +81,26 @@ export type AdminModuleSummary = {
   updatedAt: string;
 };
 
-// Mirrors GET /admin/modules/:id — a read-only content preview (chapters +
-// materials + exam). No authoring endpoints exist yet for any of these
-// nested entities.
+export type AdminMaterialType = "video" | "pdf" | "audio";
+
+export type AdminChapter = {
+  id: string;
+  slug: string;
+  title: string;
+  description: string;
+  order: number;
+  materials: { id: string; type: AdminMaterialType; title: string; meta: string }[];
+};
+
+export type AdminExam = {
+  id: string;
+  title: string;
+  passMark: number;
+  scenario: string;
+  deadlineDays: number | null;
+};
+
+// Mirrors GET /admin/modules/:id — the Module Editor's data source.
 export type AdminModuleDetail = {
   id: string;
   slug: string;
@@ -91,12 +108,7 @@ export type AdminModuleDetail = {
   description: string;
   thumbnailUrl: string | null;
   isActive: boolean;
-  chapters: {
-    id: string;
-    slug: string;
-    title: string;
-    description: string;
-    materials: { id: string; type: "video" | "pdf" | "audio"; title: string; meta: string }[];
-  }[];
-  exam: { id: string; title: string; passMark: number; scenario: string } | null;
+  publishDate: string | null;
+  chapters: AdminChapter[];
+  exam: AdminExam | null;
 };
