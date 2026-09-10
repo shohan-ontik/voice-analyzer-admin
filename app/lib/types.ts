@@ -92,6 +92,20 @@ export type AdminChapter = {
   materials: { id: string; type: AdminMaterialType; title: string; meta: string }[];
 };
 
+// Mirrors voice-analyzer-api's ModuleChapter#scenario (JSONB) — the AI
+// roleplay scenario a trainee practices against for a chapter. The admin
+// app never shows an editor for this; it's generated automatically from
+// the chapter's title/description (see generate-scenario) and sent along
+// with chapter create/update requests.
+export type ChapterScenario = {
+  clientInitials: string;
+  clientName: string;
+  clientTitle: string;
+  objection: string;
+  objective: string;
+  criteria: string[];
+};
+
 export type AdminExam = {
   id: string;
   title: string;

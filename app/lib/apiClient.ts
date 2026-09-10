@@ -7,6 +7,7 @@ import type {
   AdminStatsSummary,
   AdminUser,
   ApiErrorBody,
+  ChapterScenario,
   CreatedUser,
   ScoreCategory,
   ScoreCategoryListResult,
@@ -94,6 +95,10 @@ export function unbanUser(token: string, id: string) {
   return request<AdminUser>(`/admin/users/${id}/unban`, { method: "POST", token });
 }
 
+export function deleteUser(token: string, id: string) {
+  return request<void>(`/admin/users/${id}`, { method: "DELETE", token });
+}
+
 export function getAdminStatsSummary(token: string) {
   return request<AdminStatsSummary>("/admin/stats/summary", { token });
 }
@@ -170,7 +175,11 @@ export function deleteAdminModule(token: string, id: string) {
   return request<void>(`/admin/modules/${id}`, { method: "DELETE", token });
 }
 
-export function createChapter(token: string, moduleId: string, input: { title: string; description?: string }) {
+export function createChapter(
+  token: string,
+  moduleId: string,
+  input: { title: string; description?: string; scenario?: ChapterScenario }
+) {
   return request<AdminChapter>(`/admin/modules/${moduleId}/chapters`, { method: "POST", token, body: input });
 }
 
@@ -178,7 +187,7 @@ export function updateChapter(
   token: string,
   moduleId: string,
   chapterId: string,
-  patch: { title?: string; description?: string }
+  patch: { title?: string; description?: string; scenario?: ChapterScenario }
 ) {
   return request<AdminChapter>(`/admin/modules/${moduleId}/chapters/${chapterId}`, {
     method: "PATCH",

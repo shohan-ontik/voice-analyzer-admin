@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { ApiClientError, createChapter } from "@/app/lib/apiClient";
+import { generateChapterScenario } from "@/app/lib/generateChapterScenario";
 import { getSessionToken } from "@/app/lib/session";
 
 export async function POST(request: Request, { params }: { params: Promise<{ id: string }> }) {
@@ -17,8 +18,14 @@ export async function POST(request: Request, { params }: { params: Promise<{ id:
     return NextResponse.json({ error: { message: "Title is required." } }, { status: 400 });
   }
 
+  // The chapter's roleplay scenario has no manual editor — it's generated
+  // from the topic automatically. A generation failure shouldn't block
+  // creating the chapter, so scenario is just omitted on failure (the
+  // backend falls back to its own placeholder).
+  const scenario = await generateChapterScenario(title, description);
+
   try {
-    const chapter = await createChapter(token, id, { title, description });
+    const chapter = await createChapter(token, id, { title, description, scenario: scenario ?? undefined });
     return NextResponse.json(chapter, { status: 201 });
   } catch (err) {
     if (err instanceof ApiClientError) {

@@ -5,7 +5,7 @@ import { useParams, useRouter } from "next/navigation";
 import { useCallback, useEffect, useState } from "react";
 import type { AdminModuleDetail } from "../../../lib/types";
 import { ChapterEditorCard } from "../../../components/ChapterEditorCard";
-import { PlusIcon, SparklesIcon, TrashIcon } from "../../../components/icons";
+import { ArrowRightIcon, ClipboardIcon, PlusIcon, TrashIcon } from "../../../components/icons";
 
 async function readError(res: Response, fallback: string) {
   const body = await res.json().catch(() => null);
@@ -23,13 +23,10 @@ export default function ModuleEditorPage() {
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
   const [publishDate, setPublishDate] = useState("");
-  const [examScenario, setExamScenario] = useState("");
-  const [examDeadlineDays, setExamDeadlineDays] = useState("");
 
   const [saving, setSaving] = useState<"draft" | "publish" | null>(null);
   const [saveError, setSaveError] = useState<string | null>(null);
   const [deleting, setDeleting] = useState(false);
-  const [generating, setGenerating] = useState(false);
 
   const refresh = useCallback(() => setRefreshIndex((n) => n + 1), []);
 
@@ -46,8 +43,6 @@ export default function ModuleEditorPage() {
         setTitle(data.title);
         setDescription(data.description);
         setPublishDate(data.publishDate ?? "");
-        setExamScenario(data.exam?.scenario ?? "");
-        setExamDeadlineDays(data.exam?.deadlineDays != null ? String(data.exam.deadlineDays) : "");
       })
       .catch((err) => {
         if (!cancelled) setLoadError(err instanceof Error ? err.message : "Failed to load this module.");
@@ -119,39 +114,10 @@ export default function ModuleEditorPage() {
     refresh();
   }
 
-  async function handleGenerateScenario() {
-    setGenerating(true);
-    setSaveError(null);
-    try {
-      const res = await fetch(`/api/modules/${id}/exam/generate-scenario`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ title, description }),
-      });
-      if (!res.ok) throw new Error(await readError(res, "Failed to generate a scenario."));
-      const body = await res.json();
-      setExamScenario(body.scenario);
-    } catch (err) {
-      setSaveError(err instanceof Error ? err.message : "Failed to generate a scenario.");
-    } finally {
-      setGenerating(false);
-    }
-  }
-
   async function handleSave(publish: boolean) {
     setSaving(publish ? "publish" : "draft");
     setSaveError(null);
     try {
-      const examRes = await fetch(`/api/modules/${id}/exam`, {
-        method: "PUT",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          scenario: examScenario,
-          deadlineDays: examDeadlineDays.trim() === "" ? null : Number(examDeadlineDays),
-        }),
-      });
-      if (!examRes.ok) throw new Error(await readError(examRes, "Failed to save the exam."));
-
       const moduleRes = await fetch(`/api/modules/${id}`, {
         method: "PATCH",
         headers: { "Content-Type": "application/json" },
@@ -169,7 +135,9 @@ export default function ModuleEditorPage() {
 
   async function handleDeleteModule() {
     if (!trainingModule) return;
-    if (!window.confirm(`Delete "${trainingModule.title}"? This permanently removes its chapters, content, and exam.`)) {
+    if (
+      !window.confirm(`Delete "${trainingModule.title}"? This permanently removes its chapters, content, and exam.`)
+    ) {
       return;
     }
     setDeleting(true);
@@ -295,53 +263,23 @@ export default function ModuleEditorPage() {
           )}
         </div>
 
-        <div id="assessment" className="rounded-2xl border border-border bg-background-elevated p-6 flex flex-col gap-4 scroll-mt-6">
-          <div className="flex items-center justify-between">
-            <h2 className="font-display font-bold text-[16px] text-foreground">Module Assessment</h2>
-            <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-accent-soft text-accent text-[11px] font-bold">
-              <SparklesIcon size={11} />
-              AI Enabled
-            </span>
-          </div>
-
-          <div className="flex flex-col gap-1.5 max-w-[280px]">
-            <label htmlFor="exam-deadline" className="text-[13px] font-semibold text-foreground-muted">
-              Exam Deadline (Days after enrollment)
-            </label>
-            <input
-              id="exam-deadline"
-              type="number"
-              min={0}
-              value={examDeadlineDays}
-              onChange={(e) => setExamDeadlineDays(e.target.value)}
-              className="px-3.5 py-2.5 rounded-xl border border-border bg-background text-foreground text-sm outline-none focus:border-accent"
-            />
-          </div>
-
-          <div className="flex flex-col gap-1.5">
-            <div className="flex items-center justify-between">
-              <label htmlFor="exam-scenario" className="text-[13px] font-semibold text-foreground-muted">
-                Scenario Question (Roleplay Prompt)
-              </label>
-              <button
-                type="button"
-                onClick={handleGenerateScenario}
-                disabled={generating || !title}
-                className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-border text-[12px] font-semibold text-foreground disabled:opacity-50 cursor-pointer"
-              >
-                <SparklesIcon size={12} />
-                {generating ? "Generating…" : "AI Generate Scenario"}
-              </button>
+        <Link
+          href={`/modules/${id}/exams`}
+          className="rounded-2xl border border-border bg-background-elevated p-6 flex items-center justify-between gap-4 cursor-pointer hover:border-accent/40"
+        >
+          <div className="flex items-center gap-3.5">
+            <div className="w-10 h-10 rounded-xl bg-accent-soft text-accent flex items-center justify-center shrink-0">
+              <ClipboardIcon size={18} />
             </div>
-            <textarea
-              id="exam-scenario"
-              rows={4}
-              value={examScenario}
-              onChange={(e) => setExamScenario(e.target.value)}
-              className="px-3.5 py-2.5 rounded-xl border border-border bg-background text-foreground text-sm outline-none focus:border-accent resize-none"
-            />
+            <div>
+              <div className="font-display font-bold text-[15px] text-foreground">
+                Module Assessment {trainingModule.exam ? "· Configured" : "· Not set up"}
+              </div>
+              <p className="text-[13px] text-foreground-muted">Set the pass mark, deadline, and scenario question.</p>
+            </div>
           </div>
-        </div>
+          <ArrowRightIcon size={16} className="text-foreground-muted shrink-0" />
+        </Link>
       </div>
 
       <div className="fixed bottom-0 left-64 right-0 border-t border-border bg-background-elevated px-10 py-4 flex items-center justify-between gap-4">

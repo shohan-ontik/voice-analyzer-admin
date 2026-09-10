@@ -3,6 +3,7 @@
 import { useCallback, useEffect, useState } from "react";
 import type { AdminUser } from "../lib/types";
 import { placeholderProgress } from "../lib/userProgressPlaceholder";
+import { ConfirmDialog } from "./ConfirmDialog";
 import { CreateUserModal } from "./CreateUserModal";
 import {
   BanIcon,
@@ -13,6 +14,7 @@ import {
   FilterIcon,
   PlusIcon,
   SearchIcon,
+  TrashIcon,
 } from "./icons";
 
 const PAGE_SIZE = 10;
@@ -63,6 +65,9 @@ export function UsersManager() {
   const [justCreated, setJustCreated] = useState<{ email: string; tempPassword: string } | null>(null);
 
   const [pendingActionId, setPendingActionId] = useState<string | null>(null);
+  const [banTarget, setBanTarget] = useState<AdminUser | null>(null);
+  const [deleteTarget, setDeleteTarget] = useState<AdminUser | null>(null);
+  const [deletingId, setDeletingId] = useState<string | null>(null);
 
   const loadUsers = useCallback(async (q: string, p: number) => {
     setLoading(true);
@@ -92,15 +97,10 @@ export function UsersManager() {
     setPage(1);
   }
 
-  async function handleToggleBan(user: AdminUser) {
-    if (!user.isBanned) {
-      const confirmed = window.confirm(`Ban ${user.name} (${user.email})? They will be signed out immediately.`);
-      if (!confirmed) return;
-    }
-
+  async function runBanAction(user: AdminUser, action: "ban" | "unban") {
     setPendingActionId(user.id);
     try {
-      const res = await fetch(`/api/users/${user.id}/${user.isBanned ? "unban" : "ban"}`, { method: "POST" });
+      const res = await fetch(`/api/users/${user.id}/${action}`, { method: "POST" });
       const body = await res.json();
       if (!res.ok) throw new Error(body?.error?.message ?? "Action failed.");
       setUsers((prev) => prev.map((u) => (u.id === user.id ? body : u)));
@@ -108,6 +108,42 @@ export function UsersManager() {
       setError(err instanceof Error ? err.message : "Action failed.");
     } finally {
       setPendingActionId(null);
+    }
+  }
+
+  function handleToggleBan(user: AdminUser) {
+    if (user.isBanned) {
+      runBanAction(user, "unban");
+      return;
+    }
+    setBanTarget(user);
+  }
+
+  async function confirmBan() {
+    const user = banTarget;
+    if (!user) return;
+    await runBanAction(user, "ban");
+    setBanTarget(null);
+  }
+
+  async function confirmDelete() {
+    const user = deleteTarget;
+    if (!user) return;
+
+    setDeletingId(user.id);
+    try {
+      const res = await fetch(`/api/users/${user.id}`, { method: "DELETE" });
+      if (!res.ok) {
+        const body = await res.json().catch(() => null);
+        throw new Error(body?.error?.message ?? "Failed to delete user.");
+      }
+      setDeleteTarget(null);
+      await loadUsers(query, page);
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Failed to delete user.");
+      setDeleteTarget(null);
+    } finally {
+      setDeletingId(null);
     }
   }
 
@@ -254,17 +290,28 @@ export function UsersManager() {
                       </span>
                     </td>
                     <td className="px-5 py-3.5 text-right">
-                      <button
-                        type="button"
-                        disabled={pendingActionId === user.id}
-                        onClick={() => handleToggleBan(user)}
-                        title={user.isBanned ? "Unban user" : "Ban user"}
-                        className={`inline-flex p-2 rounded-lg hover:bg-background disabled:opacity-50 ${
-                          user.isBanned ? "text-success" : "text-danger"
-                        }`}
-                      >
-                        {user.isBanned ? <CheckCircleIcon size={17} /> : <BanIcon size={17} />}
-                      </button>
+                      <div className="inline-flex items-center gap-1">
+                        <button
+                          type="button"
+                          disabled={pendingActionId === user.id}
+                          onClick={() => handleToggleBan(user)}
+                          title={user.isBanned ? "Unban user" : "Ban user"}
+                          className={`inline-flex p-2 rounded-lg hover:bg-background disabled:opacity-50 cursor-pointer ${
+                            user.isBanned ? "text-success" : "text-danger"
+                          }`}
+                        >
+                          {user.isBanned ? <CheckCircleIcon size={17} /> : <BanIcon size={17} />}
+                        </button>
+                        <button
+                          type="button"
+                          disabled={deletingId === user.id}
+                          onClick={() => setDeleteTarget(user)}
+                          title="Delete user"
+                          className="inline-flex p-2 rounded-lg hover:bg-background disabled:opacity-50 text-danger cursor-pointer"
+                        >
+                          <TrashIcon size={17} />
+                        </button>
+                      </div>
                     </td>
                   </tr>
                 );
@@ -328,6 +375,34 @@ export function UsersManager() {
             setJustCreated(result);
             setShowCreateModal(false);
             loadUsers(query, page);
+          }}
+        />
+      )}
+
+      {banTarget && (
+        <ConfirmDialog
+          title="Ban user"
+          message={`Ban ${banTarget.name} (${banTarget.email})? They will be signed out immediately.`}
+          confirmLabel="Ban"
+          danger
+          loading={pendingActionId === banTarget.id}
+          onConfirm={confirmBan}
+          onCancel={() => {
+            if (pendingActionId !== banTarget.id) setBanTarget(null);
+          }}
+        />
+      )}
+
+      {deleteTarget && (
+        <ConfirmDialog
+          title="Delete user"
+          message={`Delete ${deleteTarget.name} (${deleteTarget.email})? This permanently removes their account and practice history, and cannot be undone.`}
+          confirmLabel="Delete"
+          danger
+          loading={deletingId === deleteTarget.id}
+          onConfirm={confirmDelete}
+          onCancel={() => {
+            if (deletingId !== deleteTarget.id) setDeleteTarget(null);
           }}
         />
       )}

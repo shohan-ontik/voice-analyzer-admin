@@ -100,7 +100,7 @@ export function ModuleCard({
             Edit Content
           </Link>
           <Link
-            href={`/modules/${m.id}#assessment`}
+            href={`/modules/${m.id}/exams`}
             className="flex-1 text-center px-4 py-2.5 rounded-lg border border-border bg-background text-foreground font-display font-semibold text-[13px]"
           >
             Manage Exams
