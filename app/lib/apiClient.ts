@@ -61,10 +61,10 @@ async function request<T>(
   return res.json() as Promise<T>;
 }
 
-export function loginRequest(email: string, password: string) {
+export function loginRequest(identifier: string, password: string) {
   return request<{ accessToken: string; user: AdminUser }>("/auth/login", {
     method: "POST",
-    body: { email, password },
+    body: { identifier, password },
   });
 }
 
@@ -83,8 +83,15 @@ export function listUsers(token: string, params: { page?: number; pageSize?: num
   });
 }
 
-export function createUser(token: string, input: { email: string; name: string; employeeId?: string }) {
+export function createUser(
+  token: string,
+  input: { username: string; phone: string; name: string; employeeId?: string }
+) {
   return request<CreatedUser>("/admin/users", { method: "POST", token, body: input });
+}
+
+export function resetUserPassword(token: string, id: string) {
+  return request<CreatedUser>(`/admin/users/${id}/reset-password`, { method: "POST", token });
 }
 
 export function banUser(token: string, id: string) {

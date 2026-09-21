@@ -5,7 +5,7 @@ import { useState, type FormEvent } from "react";
 
 export default function LoginPage() {
   const router = useRouter();
-  const [email, setEmail] = useState("");
+  const [identifier, setIdentifier] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState<string | null>(null);
   const [submitting, setSubmitting] = useState(false);
@@ -19,7 +19,7 @@ export default function LoginPage() {
       const res = await fetch("/api/auth/login", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ email, password }),
+        body: JSON.stringify({ identifier, password }),
       });
       const body = await res.json();
 
@@ -59,18 +59,18 @@ export default function LoginPage() {
           className="bg-background-elevated border border-border rounded-2xl p-7 flex flex-col gap-4"
         >
           <div className="flex flex-col gap-1.5">
-            <label htmlFor="email" className="text-[13px] font-semibold text-foreground-muted">
-              Email
+            <label htmlFor="identifier" className="text-[13px] font-semibold text-foreground-muted">
+              Username or phone number
             </label>
             <input
-              id="email"
-              type="email"
+              id="identifier"
+              type="text"
               required
               autoFocus
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
+              value={identifier}
+              onChange={(e) => setIdentifier(e.target.value)}
               className="px-3.5 py-2.5 rounded-xl border border-border bg-background text-foreground text-sm outline-none focus:border-accent"
-              placeholder="admin@example.com"
+              placeholder="admin"
             />
           </div>
 

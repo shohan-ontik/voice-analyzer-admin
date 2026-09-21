@@ -8,10 +8,11 @@ export function CreateUserModal({
   onCreated,
 }: {
   onClose: () => void;
-  onCreated: (result: { email: string; tempPassword: string }) => void;
+  onCreated: (result: { username: string; tempPassword: string }) => void;
 }) {
   const [name, setName] = useState("");
-  const [email, setEmail] = useState("");
+  const [username, setUsername] = useState("");
+  const [phone, setPhone] = useState("");
   const [employeeId, setEmployeeId] = useState("");
   const [creating, setCreating] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -24,11 +25,11 @@ export function CreateUserModal({
       const res = await fetch("/api/users", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ name, email, employeeId: employeeId || undefined }),
+        body: JSON.stringify({ name, username, phone, employeeId: employeeId || undefined }),
       });
       const body = await res.json();
       if (!res.ok) throw new Error(body?.error?.message ?? "Failed to create user.");
-      onCreated({ email: body.email, tempPassword: body.tempPassword });
+      onCreated({ username: body.username, tempPassword: body.tempPassword });
     } catch (err) {
       setError(err instanceof Error ? err.message : "Failed to create user.");
     } finally {
@@ -67,16 +68,31 @@ export function CreateUserModal({
           </div>
 
           <div className="flex flex-col gap-1.5">
-            <label htmlFor="new-user-email" className="text-[13px] font-semibold text-foreground-muted">
-              Email
+            <label htmlFor="new-user-username" className="text-[13px] font-semibold text-foreground-muted">
+              Username
             </label>
             <input
-              id="new-user-email"
-              type="email"
+              id="new-user-username"
+              type="text"
               required
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              placeholder="jane@company.com"
+              value={username}
+              onChange={(e) => setUsername(e.target.value)}
+              placeholder="jane.doe"
+              className="px-3.5 py-2.5 rounded-xl border border-border bg-background text-foreground text-sm outline-none focus:border-accent"
+            />
+          </div>
+
+          <div className="flex flex-col gap-1.5">
+            <label htmlFor="new-user-phone" className="text-[13px] font-semibold text-foreground-muted">
+              Phone number
+            </label>
+            <input
+              id="new-user-phone"
+              type="tel"
+              required
+              value={phone}
+              onChange={(e) => setPhone(e.target.value)}
+              placeholder="+15551234567"
               className="px-3.5 py-2.5 rounded-xl border border-border bg-background text-foreground text-sm outline-none focus:border-accent"
             />
           </div>

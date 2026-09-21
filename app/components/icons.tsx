@@ -261,6 +261,17 @@ export function XIcon(props: IconProps) {
   );
 }
 
+export function KeyIcon(props: IconProps) {
+  return (
+    <svg {...base(props)}>
+      <circle cx="8" cy="15" r="4" />
+      <line x1="10.5" y1="12.5" x2="20" y2="3" />
+      <line x1="16" y1="7" x2="19" y2="10" />
+      <line x1="13" y1="10" x2="16" y2="13" />
+    </svg>
+  );
+}
+
 export function ClockIcon(props: IconProps) {
   return (
     <svg {...base(props)}>

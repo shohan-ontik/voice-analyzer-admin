@@ -3,17 +3,17 @@ import { ApiClientError, loginRequest } from "@/app/lib/apiClient";
 import { setSessionCookie } from "@/app/lib/session";
 
 export async function POST(request: Request) {
-  const { email, password } = (await request.json().catch(() => ({}))) as {
-    email?: string;
+  const { identifier, password } = (await request.json().catch(() => ({}))) as {
+    identifier?: string;
     password?: string;
   };
 
-  if (!email || !password) {
-    return NextResponse.json({ error: { message: "Email and password are required." } }, { status: 400 });
+  if (!identifier || !password) {
+    return NextResponse.json({ error: { message: "Username/phone and password are required." } }, { status: 400 });
   }
 
   try {
-    const { accessToken, user } = await loginRequest(email, password);
+    const { accessToken, user } = await loginRequest(identifier, password);
 
     if (user.role !== "admin") {
       return NextResponse.json(

@@ -89,7 +89,7 @@ export function TopBar() {
             {user && (
               <div className="px-3.5 py-2 border-b border-border mb-1">
                 <div className="text-sm font-semibold text-foreground truncate">{user.name}</div>
-                <div className="text-[12px] text-foreground-muted truncate">{user.email}</div>
+                <div className="text-[12px] text-foreground-muted truncate">{user.username}</div>
               </div>
             )}
             <button

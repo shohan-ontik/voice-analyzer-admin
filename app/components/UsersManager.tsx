@@ -12,6 +12,7 @@ import {
   ChevronLeftIcon,
   ChevronRightIcon,
   FilterIcon,
+  KeyIcon,
   PlusIcon,
   SearchIcon,
   TrashIcon,
@@ -62,12 +63,18 @@ export function UsersManager() {
   const [query, setQuery] = useState("");
 
   const [showCreateModal, setShowCreateModal] = useState(false);
-  const [justCreated, setJustCreated] = useState<{ email: string; tempPassword: string } | null>(null);
+  const [credentialResult, setCredentialResult] = useState<{
+    username: string;
+    tempPassword: string;
+    verb: "Created" | "Reset password for";
+  } | null>(null);
 
   const [pendingActionId, setPendingActionId] = useState<string | null>(null);
   const [banTarget, setBanTarget] = useState<AdminUser | null>(null);
   const [deleteTarget, setDeleteTarget] = useState<AdminUser | null>(null);
   const [deletingId, setDeletingId] = useState<string | null>(null);
+  const [resetTarget, setResetTarget] = useState<AdminUser | null>(null);
+  const [resettingId, setResettingId] = useState<string | null>(null);
 
   const loadUsers = useCallback(async (q: string, p: number) => {
     setLoading(true);
@@ -147,6 +154,25 @@ export function UsersManager() {
     }
   }
 
+  async function confirmReset() {
+    const user = resetTarget;
+    if (!user) return;
+
+    setResettingId(user.id);
+    try {
+      const res = await fetch(`/api/users/${user.id}/reset-password`, { method: "POST" });
+      const body = await res.json();
+      if (!res.ok) throw new Error(body?.error?.message ?? "Failed to reset password.");
+      setCredentialResult({ username: body.username, tempPassword: body.tempPassword, verb: "Reset password for" });
+      setResetTarget(null);
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Failed to reset password.");
+      setResetTarget(null);
+    } finally {
+      setResettingId(null);
+    }
+  }
+
   const totalPages = Math.max(1, Math.ceil(total / PAGE_SIZE));
   const rangeStart = total === 0 ? 0 : (page - 1) * PAGE_SIZE + 1;
   const rangeEnd = Math.min(page * PAGE_SIZE, total);
@@ -169,18 +195,18 @@ export function UsersManager() {
         </button>
       </div>
 
-      {justCreated && (
+      {credentialResult && (
         <div className="bg-success-soft border border-success/30 rounded-2xl p-5 flex items-center justify-between gap-4">
           <div className="text-[13.5px] text-foreground">
-            Created <span className="font-semibold">{justCreated.email}</span>. Temporary password (shown once —
-            share it with them now):{" "}
+            {credentialResult.verb} <span className="font-semibold">{credentialResult.username}</span>. Temporary
+            password (shown once — share it with them now):{" "}
             <code className="px-2 py-1 rounded-md bg-background-elevated font-mono text-[13px]">
-              {justCreated.tempPassword}
+              {credentialResult.tempPassword}
             </code>
           </div>
           <button
             type="button"
-            onClick={() => setJustCreated(null)}
+            onClick={() => setCredentialResult(null)}
             className="text-[13px] font-semibold text-success flex-shrink-0"
           >
             Dismiss
@@ -194,7 +220,7 @@ export function UsersManager() {
             <SearchIcon size={15} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-foreground-muted" />
             <input
               type="search"
-              placeholder="Search by name or Employee ID..."
+              placeholder="Search by name, username, phone, or Employee ID..."
               value={query}
               onChange={(e) => handleQueryChange(e.target.value)}
               className="w-full pl-9 pr-4 py-2.5 rounded-xl border border-border bg-background text-foreground text-sm outline-none focus:border-accent"
@@ -224,6 +250,8 @@ export function UsersManager() {
           <thead>
             <tr className="text-left text-[11px] font-bold uppercase tracking-wide text-foreground-muted border-b border-border">
               <th className="px-5 py-3">Name</th>
+              <th className="px-5 py-3">Username</th>
+              <th className="px-5 py-3">Phone</th>
               <th className="px-5 py-3">Employee ID</th>
               <th className="px-5 py-3">Chapters</th>
               <th className="px-5 py-3">Avg. Score</th>
@@ -235,13 +263,13 @@ export function UsersManager() {
           <tbody>
             {loading ? (
               <tr>
-                <td colSpan={7} className="px-5 py-10 text-center text-foreground-muted">
+                <td colSpan={9} className="px-5 py-10 text-center text-foreground-muted">
                   Loading…
                 </td>
               </tr>
             ) : users.length === 0 ? (
               <tr>
-                <td colSpan={7} className="px-5 py-10 text-center text-foreground-muted">
+                <td colSpan={9} className="px-5 py-10 text-center text-foreground-muted">
                   No users found.
                 </td>
               </tr>
@@ -259,6 +287,8 @@ export function UsersManager() {
                         <span className="font-semibold text-foreground whitespace-nowrap">{user.name}</span>
                       </div>
                     </td>
+                    <td className="px-5 py-3.5 text-foreground-muted whitespace-nowrap">{user.username}</td>
+                    <td className="px-5 py-3.5 text-foreground-muted whitespace-nowrap">{user.phone ?? "—"}</td>
                     <td className="px-5 py-3.5 text-foreground-muted">{user.employeeId ?? "—"}</td>
                     <td className="px-5 py-3.5">
                       <div className="flex items-center gap-2.5 min-w-[110px]">
@@ -291,6 +321,15 @@ export function UsersManager() {
                     </td>
                     <td className="px-5 py-3.5 text-right">
                       <div className="inline-flex items-center gap-1">
+                        <button
+                          type="button"
+                          disabled={resettingId === user.id}
+                          onClick={() => setResetTarget(user)}
+                          title="Reset password"
+                          className="inline-flex p-2 rounded-lg hover:bg-background disabled:opacity-50 text-foreground-muted cursor-pointer"
+                        >
+                          <KeyIcon size={17} />
+                        </button>
                         <button
                           type="button"
                           disabled={pendingActionId === user.id}
@@ -372,7 +411,7 @@ export function UsersManager() {
         <CreateUserModal
           onClose={() => setShowCreateModal(false)}
           onCreated={(result) => {
-            setJustCreated(result);
+            setCredentialResult({ ...result, verb: "Created" });
             setShowCreateModal(false);
             loadUsers(query, page);
           }}
@@ -382,7 +421,7 @@ export function UsersManager() {
       {banTarget && (
         <ConfirmDialog
           title="Ban user"
-          message={`Ban ${banTarget.name} (${banTarget.email})? They will be signed out immediately.`}
+          message={`Ban ${banTarget.name} (${banTarget.username})? They will be signed out immediately.`}
           confirmLabel="Ban"
           danger
           loading={pendingActionId === banTarget.id}
@@ -393,10 +432,23 @@ export function UsersManager() {
         />
       )}
 
+      {resetTarget && (
+        <ConfirmDialog
+          title="Reset password"
+          message={`Reset the password for ${resetTarget.name} (${resetTarget.username})? A new temporary password will be generated and they'll be signed out of any existing sessions.`}
+          confirmLabel="Reset"
+          loading={resettingId === resetTarget.id}
+          onConfirm={confirmReset}
+          onCancel={() => {
+            if (resettingId !== resetTarget.id) setResetTarget(null);
+          }}
+        />
+      )}
+
       {deleteTarget && (
         <ConfirmDialog
           title="Delete user"
-          message={`Delete ${deleteTarget.name} (${deleteTarget.email})? This permanently removes their account and practice history, and cannot be undone.`}
+          message={`Delete ${deleteTarget.name} (${deleteTarget.username})? This permanently removes their account and practice history, and cannot be undone.`}
           confirmLabel="Delete"
           danger
           loading={deletingId === deleteTarget.id}

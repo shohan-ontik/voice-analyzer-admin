@@ -32,17 +32,18 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: { message: "Not authenticated." } }, { status: 401 });
   }
 
-  const { email, name, employeeId } = (await request.json().catch(() => ({}))) as {
-    email?: string;
+  const { username, phone, name, employeeId } = (await request.json().catch(() => ({}))) as {
+    username?: string;
+    phone?: string;
     name?: string;
     employeeId?: string;
   };
-  if (!email || !name) {
-    return NextResponse.json({ error: { message: "Email and name are required." } }, { status: 400 });
+  if (!username || !phone || !name) {
+    return NextResponse.json({ error: { message: "Username, phone, and name are required." } }, { status: 400 });
   }
 
   try {
-    const created = await createUser(token, { email, name, employeeId: employeeId || undefined });
+    const created = await createUser(token, { username, phone, name, employeeId: employeeId || undefined });
     return NextResponse.json(created, { status: 201 });
   } catch (err) {
     if (err instanceof ApiClientError) {

@@ -2,7 +2,9 @@
 // and the /admin/users list/create/ban/unban endpoints.
 export type AdminUser = {
   id: string;
-  email: string;
+  username: string;
+  phone: string | null;
+  email: string | null;
   name: string;
   role: "user" | "admin";
   isBanned: boolean;
