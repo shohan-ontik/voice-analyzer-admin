@@ -8,7 +8,7 @@ export function CreateUserModal({
   onCreated,
 }: {
   onClose: () => void;
-  onCreated: (result: { username: string; tempPassword: string }) => void;
+  onCreated: (result: { username: string; phone: string; tempPassword: string }) => void;
 }) {
   const [name, setName] = useState("");
   const [username, setUsername] = useState("");
@@ -29,7 +29,7 @@ export function CreateUserModal({
       });
       const body = await res.json();
       if (!res.ok) throw new Error(body?.error?.message ?? "Failed to create user.");
-      onCreated({ username: body.username, tempPassword: body.tempPassword });
+      onCreated({ username: body.username, phone: body.phone, tempPassword: body.tempPassword });
     } catch (err) {
       setError(err instanceof Error ? err.message : "Failed to create user.");
     } finally {

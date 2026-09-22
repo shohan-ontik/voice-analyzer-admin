@@ -11,6 +11,7 @@ import {
   ChevronDownIcon,
   ChevronLeftIcon,
   ChevronRightIcon,
+  ClipboardIcon,
   FilterIcon,
   KeyIcon,
   PlusIcon,
@@ -65,9 +66,11 @@ export function UsersManager() {
   const [showCreateModal, setShowCreateModal] = useState(false);
   const [credentialResult, setCredentialResult] = useState<{
     username: string;
+    phone: string;
     tempPassword: string;
     verb: "Created" | "Reset password for";
   } | null>(null);
+  const [credentialsCopied, setCredentialsCopied] = useState(false);
 
   const [pendingActionId, setPendingActionId] = useState<string | null>(null);
   const [banTarget, setBanTarget] = useState<AdminUser | null>(null);
@@ -163,13 +166,31 @@ export function UsersManager() {
       const res = await fetch(`/api/users/${user.id}/reset-password`, { method: "POST" });
       const body = await res.json();
       if (!res.ok) throw new Error(body?.error?.message ?? "Failed to reset password.");
-      setCredentialResult({ username: body.username, tempPassword: body.tempPassword, verb: "Reset password for" });
+      setCredentialResult({
+        username: body.username,
+        phone: body.phone ?? user.phone ?? "",
+        tempPassword: body.tempPassword,
+        verb: "Reset password for",
+      });
+      setCredentialsCopied(false);
       setResetTarget(null);
     } catch (err) {
       setError(err instanceof Error ? err.message : "Failed to reset password.");
       setResetTarget(null);
     } finally {
       setResettingId(null);
+    }
+  }
+
+  async function handleCopyCredentials() {
+    if (!credentialResult) return;
+    const text = `username: ${credentialResult.username},\nphone: ${credentialResult.phone},\npassword: ${credentialResult.tempPassword}`;
+    try {
+      await navigator.clipboard.writeText(text);
+      setCredentialsCopied(true);
+      setTimeout(() => setCredentialsCopied(false), 1500);
+    } catch {
+      setError("Failed to copy credentials to clipboard.");
     }
   }
 
@@ -196,21 +217,35 @@ export function UsersManager() {
       </div>
 
       {credentialResult && (
-        <div className="bg-success-soft border border-success/30 rounded-2xl p-5 flex items-center justify-between gap-4">
-          <div className="text-[13.5px] text-foreground">
-            {credentialResult.verb} <span className="font-semibold">{credentialResult.username}</span>. Temporary
-            password (shown once — share it with them now):{" "}
-            <code className="px-2 py-1 rounded-md bg-background-elevated font-mono text-[13px]">
-              {credentialResult.tempPassword}
-            </code>
+        <div className="bg-success-soft border border-success/30 rounded-2xl p-5 flex items-start justify-between gap-4">
+          <div className="flex-1 min-w-0">
+            <div className="text-[13.5px] text-foreground mb-3">
+              {credentialResult.verb} <span className="font-semibold">{credentialResult.username}</span>. Credentials
+              (shown once — share them with the user now):
+            </div>
+            <pre className="px-4 py-3 rounded-xl bg-background-elevated font-mono text-[13px] text-foreground whitespace-pre-wrap break-all">
+{`username: ${credentialResult.username},
+phone: ${credentialResult.phone},
+password: ${credentialResult.tempPassword}`}
+            </pre>
           </div>
-          <button
-            type="button"
-            onClick={() => setCredentialResult(null)}
-            className="text-[13px] font-semibold text-success flex-shrink-0"
-          >
-            Dismiss
-          </button>
+          <div className="flex flex-col items-end gap-2 shrink-0">
+            <button
+              type="button"
+              onClick={handleCopyCredentials}
+              className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-success/30 bg-background-elevated text-[13px] font-semibold text-success"
+            >
+              {credentialsCopied ? <CheckCircleIcon size={15} /> : <ClipboardIcon size={15} />}
+              {credentialsCopied ? "Copied" : "Copy"}
+            </button>
+            <button
+              type="button"
+              onClick={() => setCredentialResult(null)}
+              className="text-[13px] font-semibold text-success"
+            >
+              Dismiss
+            </button>
+          </div>
         </div>
       )}
 
@@ -412,6 +447,7 @@ export function UsersManager() {
           onClose={() => setShowCreateModal(false)}
           onCreated={(result) => {
             setCredentialResult({ ...result, verb: "Created" });
+            setCredentialsCopied(false);
             setShowCreateModal(false);
             loadUsers(query, page);
           }}
