@@ -1,8 +1,8 @@
 "use client";
 
 import { useState, type FormEvent } from "react";
-import type { AdminChapter, AdminMaterialType } from "../lib/types";
-import { ChevronDownIcon, ChevronRightIcon, FileIcon, HeadphoneIcon, PlusIcon, TrashIcon, VideoIcon } from "./icons";
+import type { AdminChapter, AdminMaterialType } from "../../lib/types";
+import { ChevronDownIcon, ChevronRightIcon, FileIcon, HeadphoneIcon, PlusIcon, TrashIcon, VideoIcon } from "../icons";
 
 const MATERIAL_ICON: Record<AdminMaterialType, typeof VideoIcon> = {
   video: VideoIcon,

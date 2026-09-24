@@ -23,6 +23,9 @@ export type UserListResult = {
   total: number;
   page: number;
   pageSize: number;
+  totalPages: number;
+  hasNext: boolean;
+  hasPrev: boolean;
 };
 
 export type ApiErrorBody = {
@@ -81,6 +84,13 @@ export type AdminModuleSummary = {
   chapterCount: number;
   examCount: number;
   updatedAt: string;
+};
+
+export type AdminModuleListResult = {
+  items: AdminModuleSummary[];
+  total: number;
+  page: number;
+  pageSize: number;
 };
 
 export type AdminMaterialType = "video" | "pdf" | "audio";

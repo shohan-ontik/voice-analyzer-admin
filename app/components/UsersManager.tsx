@@ -58,6 +58,9 @@ function getPageNumbers(current: number, total: number): (number | "ellipsis")[]
 export function UsersManager() {
   const [users, setUsers] = useState<AdminUser[]>([]);
   const [total, setTotal] = useState(0);
+  const [totalPages, setTotalPages] = useState(1);
+  const [hasNext, setHasNext] = useState(false);
+  const [hasPrev, setHasPrev] = useState(false);
   const [page, setPage] = useState(1);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -90,6 +93,9 @@ export function UsersManager() {
       if (!res.ok) throw new Error(body?.error?.message ?? "Failed to load users.");
       setUsers(body.items);
       setTotal(body.total);
+      setTotalPages(body.totalPages);
+      setHasNext(body.hasNext);
+      setHasPrev(body.hasPrev);
     } catch (err) {
       setError(err instanceof Error ? err.message : "Failed to load users.");
     } finally {
@@ -194,7 +200,6 @@ export function UsersManager() {
     }
   }
 
-  const totalPages = Math.max(1, Math.ceil(total / PAGE_SIZE));
   const rangeStart = total === 0 ? 0 : (page - 1) * PAGE_SIZE + 1;
   const rangeEnd = Math.min(page * PAGE_SIZE, total);
 
@@ -402,7 +407,7 @@ password: ${credentialResult.tempPassword}`}
           <div className="flex items-center gap-1.5">
             <button
               type="button"
-              disabled={page <= 1}
+              disabled={!hasPrev}
               onClick={() => setPage((p) => Math.max(1, p - 1))}
               className="w-8 h-8 rounded-lg border border-border flex items-center justify-center text-foreground-muted disabled:opacity-40"
               aria-label="Previous page"
@@ -431,7 +436,7 @@ password: ${credentialResult.tempPassword}`}
 
             <button
               type="button"
-              disabled={page >= totalPages}
+              disabled={!hasNext}
               onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
               className="w-8 h-8 rounded-lg border border-border flex items-center justify-center text-foreground-muted disabled:opacity-40"
               aria-label="Next page"

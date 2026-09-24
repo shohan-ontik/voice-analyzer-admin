@@ -3,6 +3,7 @@ import type {
   AdminChapter,
   AdminExam,
   AdminModuleDetail,
+  AdminModuleListResult,
   AdminModuleSummary,
   AdminStatsSummary,
   AdminUser,
@@ -158,8 +159,19 @@ export function deleteScoreCategory(token: string, id: string) {
   return request<void>(`/admin/score-categories/${id}`, { method: "DELETE", token });
 }
 
-export function listAdminModules(token: string) {
-  return request<{ items: AdminModuleSummary[] }>("/admin/modules", { token });
+export function listAdminModules(
+  token: string,
+  params: { page?: number; pageSize?: number; q?: string; isActive?: boolean } = {}
+) {
+  return request<AdminModuleListResult>("/admin/modules", {
+    token,
+    searchParams: {
+      page: params.page?.toString(),
+      pageSize: params.pageSize?.toString(),
+      q: params.q,
+      isActive: params.isActive === undefined ? undefined : String(params.isActive),
+    },
+  });
 }
 
 export function createAdminModule(token: string, input: { title: string; description?: string; thumbnailUrl?: string }) {
