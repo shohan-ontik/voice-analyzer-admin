@@ -1,43 +1,16 @@
-"use client";
-
-import { useEffect, useState } from "react";
+import { DashboardStats } from "../components/dashboard/DashboardStats";
 import { RecentActivityTable } from "../components/RecentActivityTable";
-import { StatCard } from "../components/StatCard";
 import {
-  BarChartIcon,
   CalendarIcon,
   ChevronDownIcon,
   ClipboardClockIcon,
-  ClipboardIcon,
   PlusIcon,
-  RefreshIcon,
   TrendingUpIcon,
   UploadCloudIcon,
-  UsersIcon,
 } from "../components/icons";
 import { dashboardPlaceholders, recentActivity } from "../lib/dashboardMockData";
-import type { AdminStatsSummary } from "../lib/types";
 
 export default function DashboardPage() {
-  const [stats, setStats] = useState<AdminStatsSummary | null>(null);
-  const [error, setError] = useState<string | null>(null);
-
-  useEffect(() => {
-    let cancelled = false;
-    fetch("/api/stats")
-      .then(async (res) => {
-        const body = await res.json();
-        if (!res.ok) throw new Error(body?.error?.message ?? "Failed to load stats.");
-        if (!cancelled) setStats(body);
-      })
-      .catch((err) => {
-        if (!cancelled) setError(err instanceof Error ? err.message : "Failed to load stats.");
-      });
-    return () => {
-      cancelled = true;
-    };
-  }, []);
-
   return (
     <div className="px-10 py-8 max-w-[1240px] w-full mx-auto flex flex-col gap-6">
       <div className="flex items-start justify-between gap-4 flex-wrap">
@@ -56,38 +29,7 @@ export default function DashboardPage() {
         </button>
       </div>
 
-      {error && <div className="text-[13px] text-danger">{error}</div>}
-
-      <div className="grid grid-cols-2 lg:grid-cols-4 gap-5">
-        <StatCard
-          label="Total Users"
-          value={stats ? stats.totalUsers.toLocaleString() : "—"}
-          Icon={UsersIcon}
-          iconWrapClass="bg-accent-soft text-accent"
-          trend={dashboardPlaceholders.totalUsersTrend}
-        />
-        <StatCard
-          label="Practice Sessions"
-          value={stats ? stats.totalPracticeSessions.toLocaleString() : "—"}
-          Icon={RefreshIcon}
-          iconWrapClass="bg-accent-soft text-accent"
-          trend={dashboardPlaceholders.practiceSessionsTrend}
-        />
-        <StatCard
-          label="Exams Taken"
-          value={dashboardPlaceholders.examsTaken.toLocaleString()}
-          Icon={ClipboardIcon}
-          iconWrapClass="bg-danger-soft text-danger"
-          trend={dashboardPlaceholders.examsTakenTrend}
-        />
-        <StatCard
-          label="Avg. Proficiency"
-          value={`${dashboardPlaceholders.avgProficiency}%`}
-          Icon={BarChartIcon}
-          iconWrapClass="bg-accent-soft text-accent"
-          trend={dashboardPlaceholders.avgProficiencyTrend}
-        />
-      </div>
+      <DashboardStats />
 
       <div className="grid grid-cols-1 lg:grid-cols-[1.6fr_1fr] gap-5 items-start">
         <div className="rounded-2xl border border-border bg-background-elevated p-6">

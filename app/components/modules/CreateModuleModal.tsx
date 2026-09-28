@@ -1,8 +1,8 @@
 "use client";
 
 import { useState, type FormEvent } from "react";
-import type { AdminModuleSummary } from "../lib/types";
-import { XIcon } from "./icons";
+import type { AdminModuleSummary } from "../../lib/types";
+import { XIcon } from "../icons";
 
 export function CreateModuleModal({
   onClose,

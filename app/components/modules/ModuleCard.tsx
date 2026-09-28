@@ -2,9 +2,9 @@
 
 import Link from "next/link";
 import { useRef, useState } from "react";
-import type { AdminModuleSummary } from "../lib/types";
-import { ClockIcon, MoreVerticalIcon } from "./icons";
-import { useClickOutside } from "../lib/useClickOutside";
+import type { AdminModuleSummary } from "../../lib/types";
+import { ClockIcon, MoreVerticalIcon } from "../icons";
+import { useClickOutside } from "../../lib/useClickOutside";
 
 function formatDate(value: string) {
   return new Date(value).toLocaleDateString(undefined, { month: "short", day: "numeric", year: "numeric" });
