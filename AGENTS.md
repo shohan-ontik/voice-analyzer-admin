@@ -12,3 +12,4 @@ This block is written and re-added by `next dev` — verify at `node_modules/nex
 
 - Follow the best practices of Next JS.
 - For any page don't use "use client" at the top, saperate the client components into small saperate client components and keep those inside components/{page-name} folder
+- Put cursor-pointer in every item that is clickable
