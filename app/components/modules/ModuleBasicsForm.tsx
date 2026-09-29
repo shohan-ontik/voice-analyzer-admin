@@ -6,6 +6,13 @@ import type { AdminModuleDetail } from "../../lib/types";
 import { TrashIcon } from "../icons";
 import { readError } from "./readError";
 
+function todayLocalDate() {
+  const now = new Date();
+  const month = String(now.getMonth() + 1).padStart(2, "0");
+  const day = String(now.getDate()).padStart(2, "0");
+  return `${now.getFullYear()}-${month}-${day}`;
+}
+
 export function ModuleBasicsForm({
   moduleId,
   module: trainingModule,
@@ -15,8 +22,6 @@ export function ModuleBasicsForm({
 }) {
   const router = useRouter();
   const [title, setTitle] = useState(trainingModule.title);
-  const [description, setDescription] = useState(trainingModule.description);
-  const [publishDate, setPublishDate] = useState(trainingModule.publishDate ?? "");
 
   const [saving, setSaving] = useState<"draft" | "publish" | null>(null);
   const [saveError, setSaveError] = useState<string | null>(null);
@@ -29,7 +34,11 @@ export function ModuleBasicsForm({
       const res = await fetch(`/api/modules/${moduleId}`, {
         method: "PATCH",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ title, description, publishDate: publishDate || null, isActive: publish }),
+        body: JSON.stringify({
+          title,
+          isActive: publish,
+          ...(publish && !trainingModule.publishDate && { publishDate: todayLocalDate() }),
+        }),
       });
       if (!res.ok) throw new Error(await readError(res, "Failed to save the module."));
       router.push("/modules");
@@ -78,31 +87,6 @@ export function ModuleBasicsForm({
           />
         </div>
 
-        <div className="flex flex-col gap-1.5">
-          <label htmlFor="module-description" className="text-[13px] font-semibold text-foreground-muted">
-            Description
-          </label>
-          <textarea
-            id="module-description"
-            rows={3}
-            value={description}
-            onChange={(e) => setDescription(e.target.value)}
-            className="px-3.5 py-2.5 rounded-xl border border-border bg-background text-foreground text-sm outline-none focus:border-accent resize-none"
-          />
-        </div>
-
-        <div className="flex flex-col gap-1.5 max-w-[240px]">
-          <label htmlFor="module-publish-date" className="text-[13px] font-semibold text-foreground-muted">
-            Publish Date
-          </label>
-          <input
-            id="module-publish-date"
-            type="date"
-            value={publishDate}
-            onChange={(e) => setPublishDate(e.target.value)}
-            className="px-3.5 py-2.5 rounded-xl border border-border bg-background text-foreground text-sm outline-none focus:border-accent cursor-pointer"
-          />
-        </div>
       </div>
 
       <div className="fixed bottom-0 left-64 right-0 border-t border-border bg-background-elevated px-10 py-4 flex items-center justify-between gap-4">

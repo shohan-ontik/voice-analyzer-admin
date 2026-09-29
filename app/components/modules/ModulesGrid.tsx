@@ -15,7 +15,7 @@ export function ModulesGrid({
   }
 
   return (
-    <div className="grid grid-cols-1 lg:grid-cols-2 gap-5">
+    <div className="grid grid-cols-1 gap-5">
       {modules.map((m) => (
         <ModuleCard key={m.id} module={m} onTogglePublish={onTogglePublish} pending={pendingId === m.id} />
       ))}
