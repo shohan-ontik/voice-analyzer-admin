@@ -3,7 +3,7 @@ services:
     build: .
     restart: unless-stopped
     ports:
-      - '3001:3001'
+      - "3001:3001"
     env_file:
       - path: .env
         required: false
@@ -12,3 +12,5 @@ services:
       NODE_EXTRA_CA_CERTS: /certs/staging-internal.pem
     volumes:
       - ./certs:/certs:ro
+    extra_hosts:
+      - "pitch-perfect-backend.staging.internal:100.87.196.60"
