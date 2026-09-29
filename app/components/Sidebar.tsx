@@ -2,13 +2,14 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { FileIcon, GridIcon, HelpCircleIcon, MicIcon, SettingsIcon, UsersIcon } from "./icons";
+import { ActivityIcon, FileIcon, GridIcon, HelpCircleIcon, MicIcon, SettingsIcon, UsersIcon } from "./icons";
 
 const NAV_ITEMS = [
   { href: "/", label: "Dashboard", Icon: GridIcon },
   { href: "/users", label: "User Management", Icon: UsersIcon },
   { href: "/modules", label: "Content Management", Icon: FileIcon },
   { href: "/settings", label: "Settings", Icon: SettingsIcon },
+  { href: "/health", label: "System Health", Icon: ActivityIcon },
 ] as const;
 
 export function Sidebar() {

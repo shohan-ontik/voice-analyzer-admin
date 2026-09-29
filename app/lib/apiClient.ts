@@ -10,6 +10,7 @@ import type {
   ApiErrorBody,
   ChapterScenario,
   CreatedUser,
+  HealthCheckResult,
   ScoreCategory,
   ScoreCategoryListResult,
   Topic,
@@ -60,6 +61,41 @@ async function request<T>(
   }
 
   return res.json() as Promise<T>;
+}
+
+// /healthz answers 503 with a JSON body when the database is down, so it can't
+// go through request(), which throws on any non-2xx status.
+export async function getHealth(): Promise<HealthCheckResult> {
+  const started = performance.now();
+  const checkedAt = new Date().toISOString();
+
+  try {
+    const res = await fetch(`${API_BASE_URL}/healthz`, {
+      cache: "no-store",
+      signal: AbortSignal.timeout(5000),
+    });
+    const latencyMs = Math.round(performance.now() - started);
+    const body = (await res.json().catch(() => null)) as { ok?: boolean; database?: "up" | "down" } | null;
+
+    return {
+      reachable: true,
+      ok: res.ok && body?.ok === true,
+      database: body?.database ?? "unknown",
+      httpStatus: res.status,
+      latencyMs,
+      checkedAt,
+    };
+  } catch (err) {
+    return {
+      reachable: false,
+      ok: false,
+      database: "unknown",
+      httpStatus: null,
+      latencyMs: Math.round(performance.now() - started),
+      checkedAt,
+      error: err instanceof Error ? err.message : "Request failed",
+    };
+  }
 }
 
 export function loginRequest(identifier: string, password: string) {

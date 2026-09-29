@@ -138,3 +138,14 @@ export type AdminModuleDetail = {
   chapters: AdminChapter[];
   exam: AdminExam | null;
 };
+
+export type HealthCheckResult = {
+  /** False when the API itself could not be reached (network error / timeout). */
+  reachable: boolean;
+  ok: boolean;
+  database: "up" | "down" | "unknown";
+  httpStatus: number | null;
+  latencyMs: number;
+  checkedAt: string;
+  error?: string;
+};

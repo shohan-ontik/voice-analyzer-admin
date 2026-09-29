@@ -272,6 +272,14 @@ export function KeyIcon(props: IconProps) {
   );
 }
 
+export function ActivityIcon(props: IconProps) {
+  return (
+    <svg {...base(props)}>
+      <polyline points="22 12 18 12 15 21 9 3 6 12 2 12" />
+    </svg>
+  );
+}
+
 export function ClockIcon(props: IconProps) {
   return (
     <svg {...base(props)}>
