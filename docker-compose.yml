@@ -7,3 +7,8 @@ services:
     env_file:
       - path: .env
         required: false
+    environment:
+      # Trust the self-signed cert used by *.staging.internal
+      NODE_EXTRA_CA_CERTS: /certs/staging-internal.pem
+    volumes:
+      - ./certs:/certs:ro
