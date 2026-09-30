@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { Hind_Siliguri, Space_Grotesk, Work_Sans } from "next/font/google";
 import "./globals.css";
+import { ToastProvider } from "./components/toast/ToastProvider";
 
 const spaceGrotesk = Space_Grotesk({
   variable: "--font-space-grotesk",
@@ -31,7 +32,7 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
       lang="en"
       className={`${spaceGrotesk.variable} ${workSans.variable} ${hindSiliguri.variable} h-full antialiased`}
     >
-      <body className="min-h-full flex flex-col font-sans">{children}</body>
+      <body className="min-h-full flex flex-col font-sans"><ToastProvider>{children}</ToastProvider></body>
     </html>
   );
 }

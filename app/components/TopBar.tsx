@@ -1,9 +1,9 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
+import { useEffect, useRef, useState } from "react";
 import type { AdminUser } from "../lib/types";
-import { BellIcon, HelpCircleIcon, LogoutIcon, SearchIcon } from "./icons";
+import { BellIcon, HelpCircleIcon, LogoutIcon } from "./icons";
 
 function initials(name: string) {
   const parts = name.trim().split(/\s+/);
@@ -31,7 +31,8 @@ export function TopBar() {
 
   useEffect(() => {
     function onClickOutside(e: MouseEvent) {
-      if (menuRef.current && !menuRef.current.contains(e.target as Node)) setMenuOpen(false);
+      if (menuRef.current && !menuRef.current.contains(e.target as Node))
+        setMenuOpen(false);
     }
     document.addEventListener("mousedown", onClickOutside);
     return () => document.removeEventListener("mousedown", onClickOutside);
@@ -46,15 +47,6 @@ export function TopBar() {
 
   return (
     <div className="h-16 flex-shrink-0 border-b border-border bg-background-elevated flex items-center gap-4 px-6">
-      <div className="relative flex-1 max-w-[420px]">
-        <SearchIcon size={15} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-foreground-muted" />
-        <input
-          type="text"
-          placeholder="Search..."
-          className="w-full pl-9 pr-4 py-2.5 rounded-xl border border-border bg-background text-sm outline-none focus:border-accent"
-        />
-      </div>
-
       <div className="flex-1" />
 
       <button
@@ -88,8 +80,12 @@ export function TopBar() {
           <div className="absolute right-0 top-11 w-56 rounded-xl border border-border bg-background-elevated shadow-lg py-2 z-20">
             {user && (
               <div className="px-3.5 py-2 border-b border-border mb-1">
-                <div className="text-sm font-semibold text-foreground truncate">{user.name}</div>
-                <div className="text-[12px] text-foreground-muted truncate">{user.username}</div>
+                <div className="text-sm font-semibold text-foreground truncate">
+                  {user.name}
+                </div>
+                <div className="text-[12px] text-foreground-muted truncate">
+                  {user.username}
+                </div>
               </div>
             )}
             <button

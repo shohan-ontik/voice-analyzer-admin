@@ -3,6 +3,7 @@
 import { useState } from "react";
 import type { AdminChapter, AdminMaterialType } from "../../lib/types";
 import { MaterialUploadForm } from "./MaterialUploadForm";
+import { useSessionDraft } from "./useSessionDraft";
 import {
   ChevronDownIcon,
   ChevronRightIcon,
@@ -44,7 +45,11 @@ export function ChapterEditorCard({
   onDeleteMaterial: (materialId: string) => void;
 }) {
   const [expanded, setExpanded] = useState(defaultExpanded);
-  const [titleDraft, setTitleDraft] = useState(chapter.title);
+  const {
+    value: titleDraft,
+    setValue: setTitleDraft,
+    reset: resetTitleDraft,
+  } = useSessionDraft(`chapter-title-draft:${chapter.id}`, chapter.title);
   const [showAddForm, setShowAddForm] = useState(false);
 
   async function handleUpload(file: File, title: string) {
@@ -70,14 +75,18 @@ export function ChapterEditorCard({
                 if (e.key === "Enter") e.currentTarget.blur();
                 if (e.key === "Escape") {
                   const input = e.currentTarget;
-                  setTitleDraft(chapter.title);
+                  resetTitleDraft();
                   requestAnimationFrame(() => input.blur());
                 }
               }}
               onBlur={() => {
                 const trimmed = titleDraft.trim();
-                if (trimmed && trimmed !== chapter.title) onUpdateTitle(trimmed);
-                else setTitleDraft(chapter.title);
+                if (trimmed && trimmed !== chapter.title) {
+                  setTitleDraft(trimmed);
+                  onUpdateTitle(trimmed);
+                } else {
+                  resetTitleDraft();
+                }
               }}
               className="flex-1 min-w-0 font-display font-bold text-[15px] text-foreground bg-transparent outline-none placeholder:text-foreground-muted cursor-text"
             />

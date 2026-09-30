@@ -4,11 +4,13 @@ import { useRouter } from "next/navigation";
 import { useState } from "react";
 import type { AdminChapter } from "../../lib/types";
 import { PlusIcon } from "../icons";
+import { useToast } from "../toast/ToastProvider";
 import { ChapterEditorCard } from "./ChapterEditorCard";
 import { readError } from "./readError";
 
 export function ChapterBuilder({ moduleId, chapters }: { moduleId: string; chapters: AdminChapter[] }) {
   const router = useRouter();
+  const toast = useToast();
   const [error, setError] = useState<string | null>(null);
 
   async function handleAddChapter() {
@@ -54,13 +56,23 @@ export function ChapterBuilder({ moduleId, chapters }: { moduleId: string; chapt
     const formData = new FormData();
     formData.set("file", file);
     formData.set("title", materialTitle);
-    const res = await fetch(`/api/modules/${moduleId}/chapters/${chapterId}/materials`, {
-      method: "POST",
-      body: formData,
-    });
-    if (!res.ok) {
-      throw new Error(await readError(res, "Upload failed."));
+    let res: Response;
+    try {
+      res = await fetch(`/api/modules/${moduleId}/chapters/${chapterId}/materials`, {
+        method: "POST",
+        body: formData,
+      });
+    } catch {
+      const message = "Upload failed. Please check your connection and try again.";
+      toast.error(message);
+      throw new Error(message);
     }
+    if (!res.ok) {
+      const message = await readError(res, "Upload failed.");
+      toast.error(message);
+      throw new Error(message);
+    }
+    toast.success(`"${materialTitle}" uploaded successfully.`);
     router.refresh();
   }
 

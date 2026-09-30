@@ -5,6 +5,7 @@ import { useParams } from "next/navigation";
 import { useCallback, useEffect, useState } from "react";
 import type { AdminModuleDetail } from "../../../../lib/types";
 import { SparklesIcon } from "../../../../components/icons";
+import { useToast } from "../../../../components/toast/ToastProvider";
 
 async function readError(res: Response, fallback: string) {
   const body = await res.json().catch(() => null);
@@ -13,6 +14,7 @@ async function readError(res: Response, fallback: string) {
 
 export default function ManageExamPage() {
   const { id } = useParams<{ id: string }>();
+  const toast = useToast();
 
   const [trainingModule, setTrainingModule] = useState<AdminModuleDetail | null>(null);
   const [loadError, setLoadError] = useState<string | null>(null);
@@ -56,11 +58,7 @@ export default function ManageExamPage() {
     setGenerating(true);
     setSaveError(null);
     try {
-      const res = await fetch(`/api/modules/${id}/exam/generate-scenario`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ title: trainingModule.title, description: trainingModule.description }),
-      });
+      const res = await fetch(`/api/modules/${id}/exam/generate-scenario`, { method: "POST" });
       if (!res.ok) throw new Error(await readError(res, "Failed to generate a scenario."));
       const body = await res.json();
       setScenario(body.scenario);
@@ -87,9 +85,12 @@ export default function ManageExamPage() {
       });
       if (!res.ok) throw new Error(await readError(res, "Failed to save the exam."));
       setSaved(true);
+      toast.success("Exam saved successfully.");
       refresh();
     } catch (err) {
-      setSaveError(err instanceof Error ? err.message : "Failed to save the exam.");
+      const message = err instanceof Error ? err.message : "Failed to save the exam.";
+      setSaveError(message);
+      toast.error(message);
     } finally {
       setSaving(false);
     }

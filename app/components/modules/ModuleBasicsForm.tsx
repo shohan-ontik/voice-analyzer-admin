@@ -4,7 +4,9 @@ import { useRouter } from "next/navigation";
 import { useState } from "react";
 import type { AdminModuleDetail } from "../../lib/types";
 import { TrashIcon } from "../icons";
+import { useToast } from "../toast/ToastProvider";
 import { readError } from "./readError";
+import { useSessionDraft } from "./useSessionDraft";
 
 function todayLocalDate() {
   const now = new Date();
@@ -21,7 +23,12 @@ export function ModuleBasicsForm({
   module: AdminModuleDetail;
 }) {
   const router = useRouter();
-  const [title, setTitle] = useState(trainingModule.title);
+  const toast = useToast();
+  // Keep an unsaved title when navigating away (e.g. to Module Assessment) and back.
+  const { value: title, setValue: setTitle, forget: forgetTitleDraft } = useSessionDraft(
+    `module-title-draft:${moduleId}`,
+    trainingModule.title,
+  );
 
   const [saving, setSaving] = useState<"draft" | "publish" | null>(null);
   const [saveError, setSaveError] = useState<string | null>(null);
@@ -41,9 +48,13 @@ export function ModuleBasicsForm({
         }),
       });
       if (!res.ok) throw new Error(await readError(res, "Failed to save the module."));
+      forgetTitleDraft();
+      toast.success(publish ? "Module published successfully." : "Module saved as draft.");
       router.push("/modules");
     } catch (err) {
-      setSaveError(err instanceof Error ? err.message : "Failed to save.");
+      const message = err instanceof Error ? err.message : "Failed to save.";
+      toast.error(publish ? `Failed to publish module. ${message}` : message);
+      setSaveError(message);
     } finally {
       setSaving(null);
     }
@@ -60,6 +71,7 @@ export function ModuleBasicsForm({
     try {
       const res = await fetch(`/api/modules/${moduleId}`, { method: "DELETE" });
       if (!res.ok) throw new Error(await readError(res, "Failed to delete module."));
+      forgetTitleDraft();
       router.push("/modules");
     } catch (err) {
       setSaveError(err instanceof Error ? err.message : "Failed to delete module.");

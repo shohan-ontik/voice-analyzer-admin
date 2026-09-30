@@ -18,7 +18,7 @@ import type {
   UserListResult,
 } from "./types";
 
-const API_BASE_URL = process.env.API_BASE_URL ?? "http://localhost:4000/api/v1";
+const API_BASE_URL = process.env.API_BASE_URL;
 
 export class ApiClientError extends Error {
   status: number;
@@ -32,7 +32,12 @@ export class ApiClientError extends Error {
 
 async function request<T>(
   path: string,
-  options: { method?: string; token?: string | null; body?: unknown; searchParams?: Record<string, string | undefined> } = {}
+  options: {
+    method?: string;
+    token?: string | null;
+    body?: unknown;
+    searchParams?: Record<string, string | undefined>;
+  } = {},
 ): Promise<T> {
   const url = new URL(`${API_BASE_URL}${path}`);
   if (options.searchParams) {
@@ -53,7 +58,10 @@ async function request<T>(
 
   if (!res.ok) {
     const body = (await res.json().catch(() => null)) as ApiErrorBody | null;
-    throw new ApiClientError(res.status, body?.error?.message ?? `Request failed with status ${res.status}`);
+    throw new ApiClientError(
+      res.status,
+      body?.error?.message ?? `Request failed with status ${res.status}`,
+    );
   }
 
   if (res.status === 204) {
@@ -75,7 +83,10 @@ export async function getHealth(): Promise<HealthCheckResult> {
       signal: AbortSignal.timeout(5000),
     });
     const latencyMs = Math.round(performance.now() - started);
-    const body = (await res.json().catch(() => null)) as { ok?: boolean; database?: "up" | "down" } | null;
+    const body = (await res.json().catch(() => null)) as {
+      ok?: boolean;
+      database?: "up" | "down";
+    } | null;
 
     return {
       reachable: true,
@@ -109,7 +120,10 @@ export function getMe(token: string) {
   return request<AdminUser>("/auth/me", { token });
 }
 
-export function listUsers(token: string, params: { page?: number; pageSize?: number; q?: string } = {}) {
+export function listUsers(
+  token: string,
+  params: { page?: number; pageSize?: number; q?: string } = {},
+) {
   return request<UserListResult>("/admin/users", {
     token,
     searchParams: {
@@ -122,21 +136,34 @@ export function listUsers(token: string, params: { page?: number; pageSize?: num
 
 export function createUser(
   token: string,
-  input: { username: string; phone: string; name: string; employeeId?: string }
+  input: { username: string; phone: string; name: string; employeeId?: string },
 ) {
-  return request<CreatedUser>("/admin/users", { method: "POST", token, body: input });
+  return request<CreatedUser>("/admin/users", {
+    method: "POST",
+    token,
+    body: input,
+  });
 }
 
 export function resetUserPassword(token: string, id: string) {
-  return request<CreatedUser>(`/admin/users/${id}/reset-password`, { method: "POST", token });
+  return request<CreatedUser>(`/admin/users/${id}/reset-password`, {
+    method: "POST",
+    token,
+  });
 }
 
 export function banUser(token: string, id: string) {
-  return request<AdminUser>(`/admin/users/${id}/ban`, { method: "POST", token });
+  return request<AdminUser>(`/admin/users/${id}/ban`, {
+    method: "POST",
+    token,
+  });
 }
 
 export function unbanUser(token: string, id: string) {
-  return request<AdminUser>(`/admin/users/${id}/unban`, { method: "POST", token });
+  return request<AdminUser>(`/admin/users/${id}/unban`, {
+    method: "POST",
+    token,
+  });
 }
 
 export function deleteUser(token: string, id: string) {
@@ -147,57 +174,96 @@ export function getAdminStatsSummary(token: string) {
   return request<AdminStatsSummary>("/admin/stats/summary", { token });
 }
 
-export function listTopics(token: string, params: { q?: string; isActive?: boolean } = {}) {
+export function listTopics(
+  token: string,
+  params: { q?: string; isActive?: boolean } = {},
+) {
   return request<TopicListResult>("/admin/topics", {
     token,
     searchParams: {
       q: params.q,
-      isActive: params.isActive === undefined ? undefined : String(params.isActive),
+      isActive:
+        params.isActive === undefined ? undefined : String(params.isActive),
     },
   });
 }
 
-export function createTopic(token: string, input: { name: string; passage: string }) {
-  return request<Topic>("/admin/topics", { method: "POST", token, body: input });
+export function createTopic(
+  token: string,
+  input: { name: string; passage: string },
+) {
+  return request<Topic>("/admin/topics", {
+    method: "POST",
+    token,
+    body: input,
+  });
 }
 
 export function updateTopic(
   token: string,
   id: string,
-  patch: { name?: string; passage?: string; isActive?: boolean }
+  patch: { name?: string; passage?: string; isActive?: boolean },
 ) {
-  return request<Topic>(`/admin/topics/${id}`, { method: "PATCH", token, body: patch });
+  return request<Topic>(`/admin/topics/${id}`, {
+    method: "PATCH",
+    token,
+    body: patch,
+  });
 }
 
 export function deleteTopic(token: string, id: string) {
   return request<void>(`/admin/topics/${id}`, { method: "DELETE", token });
 }
 
-export function listScoreCategories(token: string, params: { q?: string; isActive?: boolean } = {}) {
+export function listScoreCategories(
+  token: string,
+  params: { q?: string; isActive?: boolean } = {},
+) {
   return request<ScoreCategoryListResult>("/admin/score-categories", {
     token,
     searchParams: {
       q: params.q,
-      isActive: params.isActive === undefined ? undefined : String(params.isActive),
+      isActive:
+        params.isActive === undefined ? undefined : String(params.isActive),
     },
   });
 }
 
 export function createScoreCategory(token: string, input: { name: string }) {
-  return request<ScoreCategory>("/admin/score-categories", { method: "POST", token, body: input });
+  return request<ScoreCategory>("/admin/score-categories", {
+    method: "POST",
+    token,
+    body: input,
+  });
 }
 
-export function updateScoreCategory(token: string, id: string, patch: { name?: string; isActive?: boolean }) {
-  return request<ScoreCategory>(`/admin/score-categories/${id}`, { method: "PATCH", token, body: patch });
+export function updateScoreCategory(
+  token: string,
+  id: string,
+  patch: { name?: string; isActive?: boolean },
+) {
+  return request<ScoreCategory>(`/admin/score-categories/${id}`, {
+    method: "PATCH",
+    token,
+    body: patch,
+  });
 }
 
 export function deleteScoreCategory(token: string, id: string) {
-  return request<void>(`/admin/score-categories/${id}`, { method: "DELETE", token });
+  return request<void>(`/admin/score-categories/${id}`, {
+    method: "DELETE",
+    token,
+  });
 }
 
 export function listAdminModules(
   token: string,
-  params: { page?: number; pageSize?: number; q?: string; isActive?: boolean } = {}
+  params: {
+    page?: number;
+    pageSize?: number;
+    q?: string;
+    isActive?: boolean;
+  } = {},
 ) {
   return request<AdminModuleListResult>("/admin/modules", {
     token,
@@ -205,13 +271,21 @@ export function listAdminModules(
       page: params.page?.toString(),
       pageSize: params.pageSize?.toString(),
       q: params.q,
-      isActive: params.isActive === undefined ? undefined : String(params.isActive),
+      isActive:
+        params.isActive === undefined ? undefined : String(params.isActive),
     },
   });
 }
 
-export function createAdminModule(token: string, input: { title: string; description?: string; thumbnailUrl?: string }) {
-  return request<AdminModuleSummary>("/admin/modules", { method: "POST", token, body: input });
+export function createAdminModule(
+  token: string,
+  input: { title: string; description?: string; thumbnailUrl?: string },
+) {
+  return request<AdminModuleSummary>("/admin/modules", {
+    method: "POST",
+    token,
+    body: input,
+  });
 }
 
 export function getAdminModule(token: string, id: string) {
@@ -221,9 +295,19 @@ export function getAdminModule(token: string, id: string) {
 export function updateAdminModule(
   token: string,
   id: string,
-  patch: { title?: string; description?: string; thumbnailUrl?: string; isActive?: boolean; publishDate?: string | null }
+  patch: {
+    title?: string;
+    description?: string;
+    thumbnailUrl?: string;
+    isActive?: boolean;
+    publishDate?: string | null;
+  },
 ) {
-  return request<AdminModuleSummary>(`/admin/modules/${id}`, { method: "PATCH", token, body: patch });
+  return request<AdminModuleSummary>(`/admin/modules/${id}`, {
+    method: "PATCH",
+    token,
+    body: patch,
+  });
 }
 
 export function deleteAdminModule(token: string, id: string) {
@@ -233,55 +317,92 @@ export function deleteAdminModule(token: string, id: string) {
 export function createChapter(
   token: string,
   moduleId: string,
-  input: { title: string; description?: string; scenario?: ChapterScenario }
+  input: { title: string; description?: string; scenario?: ChapterScenario },
 ) {
-  return request<AdminChapter>(`/admin/modules/${moduleId}/chapters`, { method: "POST", token, body: input });
+  return request<AdminChapter>(`/admin/modules/${moduleId}/chapters`, {
+    method: "POST",
+    token,
+    body: input,
+  });
 }
 
 export function updateChapter(
   token: string,
   moduleId: string,
   chapterId: string,
-  patch: { title?: string; description?: string; scenario?: ChapterScenario }
+  patch: { title?: string; description?: string; scenario?: ChapterScenario },
 ) {
-  return request<AdminChapter>(`/admin/modules/${moduleId}/chapters/${chapterId}`, {
-    method: "PATCH",
-    token,
-    body: patch,
-  });
+  return request<AdminChapter>(
+    `/admin/modules/${moduleId}/chapters/${chapterId}`,
+    {
+      method: "PATCH",
+      token,
+      body: patch,
+    },
+  );
 }
 
-export function deleteChapter(token: string, moduleId: string, chapterId: string) {
-  return request<void>(`/admin/modules/${moduleId}/chapters/${chapterId}`, { method: "DELETE", token });
-}
-
-export async function uploadMaterial(token: string, moduleId: string, chapterId: string, formData: FormData) {
-  const res = await fetch(`${API_BASE_URL}/admin/modules/${moduleId}/chapters/${chapterId}/materials`, {
-    method: "POST",
-    headers: { Authorization: `Bearer ${token}` },
-    body: formData,
-    cache: "no-store",
-  });
-
-  if (!res.ok) {
-    const body = (await res.json().catch(() => null)) as ApiErrorBody | null;
-    throw new ApiClientError(res.status, body?.error?.message ?? `Request failed with status ${res.status}`);
-  }
-
-  return res.json();
-}
-
-export function deleteMaterial(token: string, moduleId: string, chapterId: string, materialId: string) {
-  return request<void>(`/admin/modules/${moduleId}/chapters/${chapterId}/materials/${materialId}`, {
+export function deleteChapter(
+  token: string,
+  moduleId: string,
+  chapterId: string,
+) {
+  return request<void>(`/admin/modules/${moduleId}/chapters/${chapterId}`, {
     method: "DELETE",
     token,
   });
 }
 
+export async function uploadMaterial(
+  token: string,
+  moduleId: string,
+  chapterId: string,
+  formData: FormData,
+) {
+  const res = await fetch(
+    `${API_BASE_URL}/admin/modules/${moduleId}/chapters/${chapterId}/materials`,
+    {
+      method: "POST",
+      headers: { Authorization: `Bearer ${token}` },
+      body: formData,
+      cache: "no-store",
+    },
+  );
+
+  if (!res.ok) {
+    const body = (await res.json().catch(() => null)) as ApiErrorBody | null;
+    throw new ApiClientError(
+      res.status,
+      body?.error?.message ?? `Request failed with status ${res.status}`,
+    );
+  }
+
+  return res.json();
+}
+
+export function deleteMaterial(
+  token: string,
+  moduleId: string,
+  chapterId: string,
+  materialId: string,
+) {
+  return request<void>(
+    `/admin/modules/${moduleId}/chapters/${chapterId}/materials/${materialId}`,
+    {
+      method: "DELETE",
+      token,
+    },
+  );
+}
+
 export function upsertExam(
   token: string,
   moduleId: string,
-  patch: { scenario?: string; deadlineDays?: number | null; passMark?: number }
+  patch: { scenario?: string; deadlineDays?: number | null; passMark?: number },
 ) {
-  return request<AdminExam>(`/admin/modules/${moduleId}/exam`, { method: "PUT", token, body: patch });
+  return request<AdminExam>(`/admin/modules/${moduleId}/exam`, {
+    method: "PUT",
+    token,
+    body: patch,
+  });
 }
