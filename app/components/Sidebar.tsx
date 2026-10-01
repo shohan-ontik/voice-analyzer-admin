@@ -3,7 +3,6 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import {
-  ActivityIcon,
   FileIcon,
   GridIcon,
   HelpCircleIcon,
@@ -15,7 +14,6 @@ const NAV_ITEMS = [
   { href: "/", label: "Dashboard", Icon: GridIcon },
   { href: "/users", label: "User Management", Icon: UsersIcon },
   { href: "/modules", label: "Content Management", Icon: FileIcon },
-  { href: "/health", label: "System Health", Icon: ActivityIcon },
 ] as const;
 
 export function Sidebar() {
@@ -37,7 +35,7 @@ export function Sidebar() {
         </span>
       </div>
 
-      <nav className="flex-1 px-3.5 pt-4 flex flex-col gap-1">
+      <nav className="flex-1 px-3.5 pt-5 flex flex-col gap-1.5">
         {NAV_ITEMS.map((item) => {
           const isActive =
             item.href === "/"
@@ -47,13 +45,13 @@ export function Sidebar() {
             <Link
               key={item.href}
               href={item.href}
-              className={`flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-sm font-semibold transition-colors ${
+              className={`flex items-center gap-3.5 px-4 py-3.5 rounded-xl text-[15px] font-semibold transition-colors cursor-pointer ${
                 isActive
                   ? "bg-accent-soft text-accent"
-                  : "text-foreground-muted hover:text-foreground"
+                  : "text-foreground hover:bg-accent-soft/50 hover:text-accent"
               }`}
             >
-              <item.Icon size={17} className="flex-shrink-0" />
+              <item.Icon size={21} className="flex-shrink-0" />
               {item.label}
             </Link>
           );
