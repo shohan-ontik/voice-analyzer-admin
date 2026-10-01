@@ -2,6 +2,15 @@ import type { SVGProps } from "react";
 
 type IconProps = SVGProps<SVGSVGElement> & { size?: number };
 
+export function SparkleIcon(props: IconProps) {
+  return (
+    <svg {...base(props)}>
+      <path d="m12 3 1.6 4.4L18 9l-4.4 1.6L12 15l-1.6-4.4L6 9l4.4-1.6L12 3Z" />
+      <path d="M19 15.5 19.8 17.5 21.8 18.3 19.8 19.1 19 21.1 18.2 19.1 16.2 18.3 18.2 17.5 19 15.5Z" />
+    </svg>
+  );
+}
+
 function base({ size = 18, ...props }: IconProps) {
   return {
     width: size,

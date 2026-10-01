@@ -1,8 +1,8 @@
-# voice-analyzer-admin
+# pitch-perfect-admin
 
-Admin panel for voice-analyzer: create user accounts, ban, and unban. A
+Admin panel for pitch-perfect: create user accounts, ban, and unban. A
 Next.js app with no direct database access — every action is proxied
-through `voice-analyzer-api`.
+through `pitch-perfect-api`.
 
 ## Local development
 
@@ -12,7 +12,7 @@ cp .env.example .env.local   # points at the backend's /api/v1
 npm run dev                   # http://localhost:3001
 ```
 
-Requires `voice-analyzer-api` running (see its own README) with at least
+Requires `pitch-perfect-api` running (see its own README) with at least
 one seeded admin account to log in with.
 
 ## Running with Docker
@@ -22,7 +22,7 @@ cp .env.example .env   # set API_BASE_URL and GEMINI_API_KEY
 docker compose up --build -d   # http://localhost:3001
 ```
 
-`voice-analyzer-api` is a separate service and is **not** included here —
+`pitch-perfect-api` is a separate service and is **not** included here —
 point `API_BASE_URL` in `.env` at wherever it's running:
 
 - Same machine, outside Docker: `http://host.docker.internal:4000/api/v1`
@@ -33,8 +33,8 @@ point `API_BASE_URL` in `.env` at wherever it's running:
 To build and run without Compose:
 
 ```bash
-docker build -t voice-analyzer-admin .
-docker run -p 3001:3001 --env-file .env voice-analyzer-admin
+docker build -t pitch-perfect-admin .
+docker run -p 3001:3001 --env-file .env pitch-perfect-admin
 ```
 
 ## How auth works

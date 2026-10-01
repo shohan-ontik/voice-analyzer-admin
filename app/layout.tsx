@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import { Hind_Siliguri, Space_Grotesk, Work_Sans } from "next/font/google";
-import "./globals.css";
 import { ToastProvider } from "./components/toast/ToastProvider";
+import "./globals.css";
 
 const spaceGrotesk = Space_Grotesk({
   variable: "--font-space-grotesk",
@@ -22,8 +22,8 @@ const hindSiliguri = Hind_Siliguri({
 });
 
 export const metadata: Metadata = {
-  title: "SalesTrain Pro Admin Console",
-  description: "Manage voice-analyzer users: create accounts, ban, and unban.",
+  title: "PitchPerfect Admin Console",
+  description: "Manage PitchPerfect users: create accounts, ban, and unban.",
 };
 
 export default function RootLayout({ children }: LayoutProps<"/">) {
@@ -32,7 +32,9 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
       lang="en"
       className={`${spaceGrotesk.variable} ${workSans.variable} ${hindSiliguri.variable} h-full antialiased`}
     >
-      <body className="min-h-full flex flex-col font-sans"><ToastProvider>{children}</ToastProvider></body>
+      <body className="min-h-full flex flex-col font-sans">
+        <ToastProvider>{children}</ToastProvider>
+      </body>
     </html>
   );
 }
