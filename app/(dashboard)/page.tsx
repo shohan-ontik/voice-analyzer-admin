@@ -1,9 +1,9 @@
 import { DashboardStats } from "../components/dashboard/DashboardStats";
 import {
   ClipboardClockIcon,
-  PlusIcon,
   UploadCloudIcon,
 } from "../components/icons";
+import { CreateModuleTrigger } from "../components/modules/CreateModuleTrigger";
 import { RecentActivityTable } from "../components/RecentActivityTable";
 import { dashboardPlaceholders } from "../lib/dashboardMockData";
 import { getRecentActivity } from "../lib/apiClient";
@@ -76,13 +76,10 @@ export default async function DashboardPage() {
             </div>
           </div>
 
-          <button
-            type="button"
-            className="mt-1 inline-flex items-center justify-center gap-2 py-3 rounded-xl bg-accent text-accent-ink font-display font-semibold text-sm"
-          >
-            <PlusIcon size={16} />
-            Create Module
-          </button>
+          <CreateModuleTrigger
+            label="Create Module"
+            className="mt-1 inline-flex items-center justify-center gap-2 py-3 rounded-xl bg-accent text-accent-ink font-display font-semibold text-sm cursor-pointer disabled:opacity-60 disabled:cursor-not-allowed"
+          />
         </div>
       </div>
 

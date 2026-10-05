@@ -9,7 +9,18 @@ import { readError } from "./readError";
 
 const DEFAULT_MODULE_TITLE = "Untitled Module";
 
-export function CreateModuleTrigger() {
+const DEFAULT_CLASS_NAME =
+  "inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-accent text-accent-ink font-display font-semibold text-[13.5px] shrink-0 cursor-pointer disabled:opacity-60 disabled:cursor-not-allowed";
+
+type CreateModuleTriggerProps = {
+  label?: string;
+  className?: string;
+};
+
+export function CreateModuleTrigger({
+  label = "Create New Module",
+  className = DEFAULT_CLASS_NAME,
+}: CreateModuleTriggerProps) {
   const router = useRouter();
   const toast = useToast();
   const [creating, setCreating] = useState(false);
@@ -36,10 +47,10 @@ export function CreateModuleTrigger() {
       type="button"
       onClick={handleCreate}
       disabled={creating}
-      className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-accent text-accent-ink font-display font-semibold text-[13.5px] shrink-0 cursor-pointer disabled:opacity-60 disabled:cursor-not-allowed"
+      className={className}
     >
       {creating ? <Spinner /> : <PlusIcon size={16} />}
-      {creating ? "Creating…" : "Create New Module"}
+      {creating ? "Creating…" : label}
     </button>
   );
 }
