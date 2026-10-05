@@ -1,3 +1,24 @@
+// Mirrors the items returned by GET /admin/stats/recent-activity.
+export type RecentActivityItem = {
+  id: string;
+  userId: string;
+  userName: string;
+  module: string;
+  type: "exam" | "pitch_practice";
+  score: number;
+  createdAt: string;
+};
+
+export type RecentActivityResult = {
+  items: RecentActivityItem[];
+  total: number;
+  page: number;
+  pageSize: number;
+  totalPages: number;
+  hasNext: boolean;
+  hasPrev: boolean;
+};
+
 // Mirrors the shape returned by voice-analyzer-api's User#toSafeJSON()
 // and the /admin/users list/create/ban/unban endpoints.
 export type AdminUser = {
@@ -18,8 +39,16 @@ export type AdminUser = {
 
 export type CreatedUser = AdminUser & { tempPassword: string };
 
+// Mirrors the items returned by GET /admin/users: a user plus training
+// progress. avgScore is null until the user has at least one practice session.
+export type AdminUserListItem = AdminUser & {
+  completedChapters: number;
+  totalChapters: number;
+  avgScore: number | null;
+};
+
 export type UserListResult = {
-  items: AdminUser[];
+  items: AdminUserListItem[];
   total: number;
   page: number;
   pageSize: number;
@@ -38,6 +67,9 @@ export type AdminStatsSummary = {
   bannedUsers: number;
   totalPracticeSessions: number;
   sessionsThisWeek: number;
+  examsTaken: number;
+  // Null when there are no practice sessions yet.
+  avgProficiency: number | null;
 };
 
 // Mirrors voice-analyzer-api's Topic model / /admin/topics endpoints.

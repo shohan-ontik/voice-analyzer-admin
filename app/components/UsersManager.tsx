@@ -1,18 +1,15 @@
 "use client";
 
 import { useCallback, useEffect, useState } from "react";
-import type { AdminUser } from "../lib/types";
-import { placeholderProgress } from "../lib/userProgressPlaceholder";
+import type { AdminUserListItem } from "../lib/types";
 import { ConfirmDialog } from "./ConfirmDialog";
 import { CreateUserModal } from "./CreateUserModal";
 import {
   BanIcon,
   CheckCircleIcon,
-  ChevronDownIcon,
   ChevronLeftIcon,
   ChevronRightIcon,
   ClipboardIcon,
-  FilterIcon,
   KeyIcon,
   PlusIcon,
   SearchIcon,
@@ -40,7 +37,10 @@ function scoreClass(score: number) {
   return "text-danger";
 }
 
-function getPageNumbers(current: number, total: number): (number | "ellipsis")[] {
+function getPageNumbers(
+  current: number,
+  total: number,
+): (number | "ellipsis")[] {
   if (total <= 5) return Array.from({ length: total }, (_, i) => i + 1);
   const pages = new Set<number>([1, 2, 3, total]);
   if (current > 1 && current < total) pages.add(current);
@@ -56,7 +56,7 @@ function getPageNumbers(current: number, total: number): (number | "ellipsis")[]
 }
 
 export function UsersManager() {
-  const [users, setUsers] = useState<AdminUser[]>([]);
+  const [users, setUsers] = useState<AdminUserListItem[]>([]);
   const [total, setTotal] = useState(0);
   const [totalPages, setTotalPages] = useState(1);
   const [hasNext, setHasNext] = useState(false);
@@ -76,21 +76,29 @@ export function UsersManager() {
   const [credentialsCopied, setCredentialsCopied] = useState(false);
 
   const [pendingActionId, setPendingActionId] = useState<string | null>(null);
-  const [banTarget, setBanTarget] = useState<AdminUser | null>(null);
-  const [deleteTarget, setDeleteTarget] = useState<AdminUser | null>(null);
+  const [banTarget, setBanTarget] = useState<AdminUserListItem | null>(null);
+  const [deleteTarget, setDeleteTarget] = useState<AdminUserListItem | null>(
+    null,
+  );
   const [deletingId, setDeletingId] = useState<string | null>(null);
-  const [resetTarget, setResetTarget] = useState<AdminUser | null>(null);
+  const [resetTarget, setResetTarget] = useState<AdminUserListItem | null>(
+    null,
+  );
   const [resettingId, setResettingId] = useState<string | null>(null);
 
   const loadUsers = useCallback(async (q: string, p: number) => {
     setLoading(true);
     setError(null);
     try {
-      const params = new URLSearchParams({ page: String(p), pageSize: String(PAGE_SIZE) });
+      const params = new URLSearchParams({
+        page: String(p),
+        pageSize: String(PAGE_SIZE),
+      });
       if (q) params.set("q", q);
       const res = await fetch(`/api/users?${params}`);
       const body = await res.json();
-      if (!res.ok) throw new Error(body?.error?.message ?? "Failed to load users.");
+      if (!res.ok)
+        throw new Error(body?.error?.message ?? "Failed to load users.");
       setUsers(body.items);
       setTotal(body.total);
       setTotalPages(body.totalPages);
@@ -113,10 +121,15 @@ export function UsersManager() {
     setPage(1);
   }
 
-  async function runBanAction(user: AdminUser, action: "ban" | "unban") {
+  async function runBanAction(
+    user: AdminUserListItem,
+    action: "ban" | "unban",
+  ) {
     setPendingActionId(user.id);
     try {
-      const res = await fetch(`/api/users/${user.id}/${action}`, { method: "POST" });
+      const res = await fetch(`/api/users/${user.id}/${action}`, {
+        method: "POST",
+      });
       const body = await res.json();
       if (!res.ok) throw new Error(body?.error?.message ?? "Action failed.");
       setUsers((prev) => prev.map((u) => (u.id === user.id ? body : u)));
@@ -127,7 +140,7 @@ export function UsersManager() {
     }
   }
 
-  function handleToggleBan(user: AdminUser) {
+  function handleToggleBan(user: AdminUserListItem) {
     if (user.isBanned) {
       runBanAction(user, "unban");
       return;
@@ -169,9 +182,12 @@ export function UsersManager() {
 
     setResettingId(user.id);
     try {
-      const res = await fetch(`/api/users/${user.id}/reset-password`, { method: "POST" });
+      const res = await fetch(`/api/users/${user.id}/reset-password`, {
+        method: "POST",
+      });
       const body = await res.json();
-      if (!res.ok) throw new Error(body?.error?.message ?? "Failed to reset password.");
+      if (!res.ok)
+        throw new Error(body?.error?.message ?? "Failed to reset password.");
       setCredentialResult({
         username: body.username,
         phone: body.phone ?? user.phone ?? "",
@@ -181,7 +197,9 @@ export function UsersManager() {
       setCredentialsCopied(false);
       setResetTarget(null);
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Failed to reset password.");
+      setError(
+        err instanceof Error ? err.message : "Failed to reset password.",
+      );
       setResetTarget(null);
     } finally {
       setResettingId(null);
@@ -207,8 +225,12 @@ export function UsersManager() {
     <div className="flex-1 px-10 py-8 max-w-[1240px] w-full mx-auto flex flex-col gap-6">
       <div className="flex items-start justify-between gap-4 flex-wrap">
         <div>
-          <h1 className="font-display font-bold text-[28px] text-foreground mb-1">User Management</h1>
-          <p className="text-[14px] text-foreground-muted">Manage Sales Officers, track progress, and update roles.</p>
+          <h1 className="font-display font-bold text-[28px] text-foreground mb-1">
+            User Management
+          </h1>
+          <p className="text-[14px] text-foreground-muted">
+            Manage Sales Officers, track progress, and update roles.
+          </p>
         </div>
 
         <button
@@ -225,11 +247,12 @@ export function UsersManager() {
         <div className="bg-success-soft border border-success/30 rounded-2xl p-5 flex items-start justify-between gap-4">
           <div className="flex-1 min-w-0">
             <div className="text-[13.5px] text-foreground mb-3">
-              {credentialResult.verb} <span className="font-semibold">{credentialResult.username}</span>. Credentials
-              (shown once — share them with the user now):
+              {credentialResult.verb}{" "}
+              <span className="font-semibold">{credentialResult.username}</span>
+              . Credentials (shown once — share them with the user now):
             </div>
             <pre className="px-4 py-3 rounded-xl bg-background-elevated font-mono text-[13px] text-foreground whitespace-pre-wrap break-all">
-{`username: ${credentialResult.username},
+              {`username: ${credentialResult.username},
 phone: ${credentialResult.phone},
 password: ${credentialResult.tempPassword}`}
             </pre>
@@ -240,7 +263,11 @@ password: ${credentialResult.tempPassword}`}
               onClick={handleCopyCredentials}
               className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-success/30 bg-background-elevated text-[13px] font-semibold text-success"
             >
-              {credentialsCopied ? <CheckCircleIcon size={15} /> : <ClipboardIcon size={15} />}
+              {credentialsCopied ? (
+                <CheckCircleIcon size={15} />
+              ) : (
+                <ClipboardIcon size={15} />
+              )}
               {credentialsCopied ? "Copied" : "Copy"}
             </button>
             <button
@@ -257,7 +284,10 @@ password: ${credentialResult.tempPassword}`}
       <div className="rounded-2xl border border-border bg-background-elevated overflow-hidden">
         <div className="p-5 flex items-center gap-3 flex-wrap border-b border-border">
           <div className="relative flex-1 min-w-[240px]">
-            <SearchIcon size={15} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-foreground-muted" />
+            <SearchIcon
+              size={15}
+              className="absolute left-3.5 top-1/2 -translate-y-1/2 text-foreground-muted"
+            />
             <input
               type="search"
               placeholder="Search by name, username, phone, or Employee ID..."
@@ -266,25 +296,12 @@ password: ${credentialResult.tempPassword}`}
               className="w-full pl-9 pr-4 py-2.5 rounded-xl border border-border bg-background text-foreground text-sm outline-none focus:border-accent"
             />
           </div>
-
-          <button
-            type="button"
-            className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl border border-border bg-background text-foreground text-[13.5px] font-medium"
-          >
-            All Modules
-            <ChevronDownIcon size={15} className="text-foreground-muted" />
-          </button>
-
-          <button
-            type="button"
-            className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl border border-border bg-background-elevated font-display font-semibold text-[13.5px] text-foreground"
-          >
-            <FilterIcon size={15} />
-            Filter
-          </button>
+          <div className="w-[20%]" />
         </div>
 
-        {error && <div className="px-5 pt-4 text-[13px] text-danger">{error}</div>}
+        {error && (
+          <div className="px-5 pt-4 text-[13px] text-danger">{error}</div>
+        )}
 
         <table className="w-full text-sm">
           <thead>
@@ -303,33 +320,52 @@ password: ${credentialResult.tempPassword}`}
           <tbody>
             {loading ? (
               <tr>
-                <td colSpan={9} className="px-5 py-10 text-center text-foreground-muted">
+                <td
+                  colSpan={9}
+                  className="px-5 py-10 text-center text-foreground-muted"
+                >
                   Loading…
                 </td>
               </tr>
             ) : users.length === 0 ? (
               <tr>
-                <td colSpan={9} className="px-5 py-10 text-center text-foreground-muted">
+                <td
+                  colSpan={9}
+                  className="px-5 py-10 text-center text-foreground-muted"
+                >
                   No users found.
                 </td>
               </tr>
             ) : (
               users.map((user) => {
-                const progress = placeholderProgress(user.id);
-                const progressPercent = (progress.chaptersCompleted / progress.totalChapters) * 100;
+                const progressPercent =
+                  user.totalChapters > 0
+                    ? (user.completedChapters / user.totalChapters) * 100
+                    : 0;
                 return (
-                  <tr key={user.id} className="border-b border-border last:border-0">
+                  <tr
+                    key={user.id}
+                    className="border-b border-border last:border-0"
+                  >
                     <td className="px-5 py-3.5">
                       <div className="flex items-center gap-3">
                         <div className="w-9 h-9 rounded-full bg-accent-soft text-accent flex items-center justify-center font-display font-bold text-[12.5px] shrink-0">
                           {initials(user.name)}
                         </div>
-                        <span className="font-semibold text-foreground whitespace-nowrap">{user.name}</span>
+                        <span className="font-semibold text-foreground whitespace-nowrap">
+                          {user.name}
+                        </span>
                       </div>
                     </td>
-                    <td className="px-5 py-3.5 text-foreground-muted whitespace-nowrap">{user.username}</td>
-                    <td className="px-5 py-3.5 text-foreground-muted whitespace-nowrap">{user.phone ?? "—"}</td>
-                    <td className="px-5 py-3.5 text-foreground-muted">{user.employeeId ?? "—"}</td>
+                    <td className="px-5 py-3.5 text-foreground-muted whitespace-nowrap">
+                      {user.username}
+                    </td>
+                    <td className="px-5 py-3.5 text-foreground-muted whitespace-nowrap">
+                      {user.phone ?? "—"}
+                    </td>
+                    <td className="px-5 py-3.5 text-foreground-muted">
+                      {user.employeeId ?? "—"}
+                    </td>
                     <td className="px-5 py-3.5">
                       <div className="flex items-center gap-2.5 min-w-[110px]">
                         <div className="flex-1 h-1.5 rounded-full bg-border overflow-hidden max-w-[70px]">
@@ -339,12 +375,18 @@ password: ${credentialResult.tempPassword}`}
                           />
                         </div>
                         <span className="text-[12.5px] text-foreground-muted whitespace-nowrap">
-                          {progress.chaptersCompleted}/{progress.totalChapters}
+                          {user.completedChapters}/{user.totalChapters}
                         </span>
                       </div>
                     </td>
-                    <td className={`px-5 py-3.5 font-bold ${scoreClass(progress.avgScore)}`}>
-                      {progress.avgScore}%
+                    <td
+                      className={`px-5 py-3.5 font-bold ${
+                        user.avgScore === null
+                          ? "text-foreground-muted"
+                          : scoreClass(user.avgScore)
+                      }`}
+                    >
+                      {user.avgScore === null ? "—" : `${user.avgScore}%`}
                     </td>
                     <td className="px-5 py-3.5 text-foreground-muted whitespace-nowrap">
                       {formatDate(user.lastLoginAt)}
@@ -352,7 +394,9 @@ password: ${credentialResult.tempPassword}`}
                     <td className="px-5 py-3.5">
                       <span
                         className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-semibold ${
-                          user.isBanned ? "bg-border text-foreground-muted" : "bg-success-soft text-success"
+                          user.isBanned
+                            ? "bg-border text-foreground-muted"
+                            : "bg-success-soft text-success"
                         }`}
                       >
                         <span className="w-1.5 h-1.5 rounded-full bg-current" />
@@ -379,7 +423,11 @@ password: ${credentialResult.tempPassword}`}
                             user.isBanned ? "text-success" : "text-danger"
                           }`}
                         >
-                          {user.isBanned ? <CheckCircleIcon size={17} /> : <BanIcon size={17} />}
+                          {user.isBanned ? (
+                            <CheckCircleIcon size={17} />
+                          ) : (
+                            <BanIcon size={17} />
+                          )}
                         </button>
                         <button
                           type="button"
@@ -401,7 +449,9 @@ password: ${credentialResult.tempPassword}`}
 
         <div className="px-5 py-4 flex items-center justify-between gap-4 flex-wrap border-t border-border">
           <span className="text-[13px] text-foreground-muted">
-            {total === 0 ? "No users" : `Showing ${rangeStart}-${rangeEnd} of ${total.toLocaleString()}`}
+            {total === 0
+              ? "No users"
+              : `Showing ${rangeStart}-${rangeEnd} of ${total.toLocaleString()}`}
           </span>
 
           <div className="flex items-center gap-1.5">
@@ -417,7 +467,10 @@ password: ${credentialResult.tempPassword}`}
 
             {getPageNumbers(page, totalPages).map((p, i) =>
               p === "ellipsis" ? (
-                <span key={`ellipsis-${i}`} className="w-8 h-8 flex items-center justify-center text-foreground-muted">
+                <span
+                  key={`ellipsis-${i}`}
+                  className="w-8 h-8 flex items-center justify-center text-foreground-muted"
+                >
                   …
                 </span>
               ) : (
@@ -426,12 +479,14 @@ password: ${credentialResult.tempPassword}`}
                   type="button"
                   onClick={() => setPage(p)}
                   className={`w-8 h-8 rounded-lg text-[13px] font-semibold ${
-                    p === page ? "bg-accent text-accent-ink" : "text-foreground-muted hover:bg-background"
+                    p === page
+                      ? "bg-accent text-accent-ink"
+                      : "text-foreground-muted hover:bg-background"
                   }`}
                 >
                   {p}
                 </button>
-              )
+              ),
             )}
 
             <button

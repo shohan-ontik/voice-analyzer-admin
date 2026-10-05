@@ -1,6 +1,19 @@
-import type { RecentActivityRow } from "../lib/dashboardMockData";
+import type { RecentActivityItem } from "../lib/types";
 
 const AVATAR_TONES = ["bg-accent-soft text-accent", "bg-warning-soft text-warning", "bg-teal-soft text-teal"];
+
+function initials(name: string) {
+  return name
+    .trim()
+    .split(/\s+/)
+    .slice(0, 2)
+    .map((p) => p[0]?.toUpperCase())
+    .join("");
+}
+
+function formatDate(value: string) {
+  return new Date(value).toLocaleDateString("en-US", { dateStyle: "medium" });
+}
 
 function scoreClass(score: number) {
   if (score >= 80) return "text-foreground";
@@ -8,7 +21,7 @@ function scoreClass(score: number) {
   return "text-danger";
 }
 
-export function RecentActivityTable({ rows }: { rows: RecentActivityRow[] }) {
+export function RecentActivityTable({ rows }: { rows: RecentActivityItem[] }) {
   return (
     <div className="overflow-x-auto">
       <table className="w-full text-left border-collapse">
@@ -25,6 +38,13 @@ export function RecentActivityTable({ rows }: { rows: RecentActivityRow[] }) {
           </tr>
         </thead>
         <tbody>
+          {rows.length === 0 && (
+            <tr>
+              <td colSpan={4} className="py-8 text-center text-[13.5px] text-foreground-muted">
+                No activity yet.
+              </td>
+            </tr>
+          )}
           {rows.map((row, i) => (
             <tr key={row.id} className="border-b border-border last:border-0">
               <td className="py-3.5 pr-4">
@@ -32,7 +52,7 @@ export function RecentActivityTable({ rows }: { rows: RecentActivityRow[] }) {
                   <div
                     className={`w-8 h-8 rounded-full flex items-center justify-center font-display font-bold text-[12px] shrink-0 ${AVATAR_TONES[i % AVATAR_TONES.length]}`}
                   >
-                    {row.initials}
+                    {initials(row.userName)}
                   </div>
                   <span className="text-[13.5px] font-semibold text-foreground whitespace-nowrap">
                     {row.userName}
@@ -43,7 +63,7 @@ export function RecentActivityTable({ rows }: { rows: RecentActivityRow[] }) {
               <td className={`py-3.5 pr-4 text-[13.5px] font-bold text-right ${scoreClass(row.score)}`}>
                 {row.score}%
               </td>
-              <td className="py-3.5 text-[13px] text-foreground-muted text-right whitespace-nowrap">{row.date}</td>
+              <td className="py-3.5 text-[13px] text-foreground-muted text-right whitespace-nowrap">{formatDate(row.createdAt)}</td>
             </tr>
           ))}
         </tbody>

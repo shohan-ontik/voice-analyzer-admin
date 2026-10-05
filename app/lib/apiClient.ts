@@ -11,6 +11,7 @@ import type {
   ChapterScenario,
   CreatedUser,
   HealthCheckResult,
+  RecentActivityResult,
   ScoreCategory,
   ScoreCategoryListResult,
   Topic,
@@ -172,6 +173,19 @@ export function deleteUser(token: string, id: string) {
 
 export function getAdminStatsSummary(token: string) {
   return request<AdminStatsSummary>("/admin/stats/summary", { token });
+}
+
+export function getRecentActivity(
+  token: string,
+  params: { page?: number; pageSize?: number } = {},
+) {
+  return request<RecentActivityResult>("/admin/stats/recent-activity", {
+    token,
+    searchParams: {
+      page: params.page?.toString(),
+      pageSize: params.pageSize?.toString(),
+    },
+  });
 }
 
 export function listTopics(

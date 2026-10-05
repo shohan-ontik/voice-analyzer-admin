@@ -5,12 +5,28 @@ import {
   UploadCloudIcon,
 } from "../components/icons";
 import { RecentActivityTable } from "../components/RecentActivityTable";
-import {
-  dashboardPlaceholders,
-  recentActivity,
-} from "../lib/dashboardMockData";
+import { dashboardPlaceholders } from "../lib/dashboardMockData";
+import { getRecentActivity } from "../lib/apiClient";
+import { getSessionToken } from "../lib/session";
+import type { RecentActivityItem } from "../lib/types";
 
-export default function DashboardPage() {
+const RECENT_ACTIVITY_LIMIT = 5;
+
+async function loadRecentActivity(): Promise<RecentActivityItem[]> {
+  const token = await getSessionToken();
+  if (!token) return [];
+  try {
+    const result = await getRecentActivity(token, { pageSize: RECENT_ACTIVITY_LIMIT });
+    return result.items;
+  } catch (err) {
+    console.error("Failed to load recent activity:", err);
+    return [];
+  }
+}
+
+export default async function DashboardPage() {
+  const recentActivity = await loadRecentActivity();
+
   return (
     <div className="px-10 py-8 max-w-[1240px] w-full mx-auto flex flex-col gap-6">
       <div className="flex items-start justify-between gap-4 flex-wrap">

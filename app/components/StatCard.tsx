@@ -1,23 +1,16 @@
-import type { TrendDirection } from "../lib/dashboardMockData";
-import { TrendingDownIcon, TrendingUpIcon } from "./icons";
+import type { ComponentType } from "react";
 
 export function StatCard({
   label,
   value,
   Icon,
   iconWrapClass,
-  trend,
 }: {
   label: string;
   value: string | number;
-  Icon: typeof TrendingUpIcon;
+  Icon: ComponentType<{ size?: number }>;
   iconWrapClass: string;
-  trend: { direction: TrendDirection; label: string };
 }) {
-  const TrendIcon =
-    trend.direction === "up" ? TrendingUpIcon : TrendingDownIcon;
-  const trendClass = trend.direction === "up" ? "text-success" : "text-danger";
-
   return (
     <div className="p-5 rounded-2xl bg-background-elevated border border-border flex flex-col gap-4">
       <div className="flex items-center justify-between">

@@ -3,7 +3,6 @@
 import { useEffect, useState } from "react";
 import { StatCard } from "../StatCard";
 import { BarChartIcon, ClipboardIcon, RefreshIcon, UsersIcon } from "../icons";
-import { dashboardPlaceholders } from "../../lib/dashboardMockData";
 import type { AdminStatsSummary } from "../../lib/types";
 
 export function DashboardStats() {
@@ -36,28 +35,24 @@ export function DashboardStats() {
           value={stats ? stats.totalUsers.toLocaleString() : "—"}
           Icon={UsersIcon}
           iconWrapClass="bg-accent-soft text-accent"
-          trend={dashboardPlaceholders.totalUsersTrend}
         />
         <StatCard
           label="Practice Sessions"
           value={stats ? stats.totalPracticeSessions.toLocaleString() : "—"}
           Icon={RefreshIcon}
           iconWrapClass="bg-accent-soft text-accent"
-          trend={dashboardPlaceholders.practiceSessionsTrend}
         />
         <StatCard
           label="Exams Taken"
-          value={dashboardPlaceholders.examsTaken.toLocaleString()}
+          value={stats ? stats.examsTaken.toLocaleString() : "—"}
           Icon={ClipboardIcon}
           iconWrapClass="bg-danger-soft text-danger"
-          trend={dashboardPlaceholders.examsTakenTrend}
         />
         <StatCard
           label="Avg. Proficiency"
-          value={`${dashboardPlaceholders.avgProficiency}%`}
+          value={stats && stats.avgProficiency !== null ? `${stats.avgProficiency}%` : "—"}
           Icon={BarChartIcon}
           iconWrapClass="bg-accent-soft text-accent"
-          trend={dashboardPlaceholders.avgProficiencyTrend}
         />
       </div>
     </>

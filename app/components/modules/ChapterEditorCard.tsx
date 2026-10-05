@@ -2,8 +2,6 @@
 
 import { useState } from "react";
 import type { AdminChapter, AdminMaterialType } from "../../lib/types";
-import { MaterialUploadForm } from "./MaterialUploadForm";
-import { useSessionDraft } from "./useSessionDraft";
 import {
   ChevronDownIcon,
   ChevronRightIcon,
@@ -14,6 +12,8 @@ import {
   TrashIcon,
   VideoIcon,
 } from "../icons";
+import { MaterialUploadForm } from "./MaterialUploadForm";
+import { useSessionDraft } from "./useSessionDraft";
 
 const MATERIAL_ICON: Record<AdminMaterialType, typeof VideoIcon> = {
   video: VideoIcon,
@@ -35,7 +35,7 @@ export function ChapterEditorCard({
   onDelete,
   onUploadMaterial,
   onDeleteMaterial,
-}: {
+}: Readonly<{
   chapter: AdminChapter;
   index: number;
   defaultExpanded: boolean;
@@ -43,7 +43,7 @@ export function ChapterEditorCard({
   onDelete: () => void;
   onUploadMaterial: (file: File, title: string) => Promise<void>;
   onDeleteMaterial: (materialId: string) => void;
-}) {
+}>) {
   const [expanded, setExpanded] = useState(defaultExpanded);
   const {
     value: titleDraft,
@@ -59,12 +59,13 @@ export function ChapterEditorCard({
 
   return (
     <div className="rounded-xl border border-border overflow-hidden">
-      <div className="flex items-center gap-3 p-4">
-        <div className="flex-1 min-w-0">
-          <div className="text-[11px] font-bold uppercase tracking-wide text-foreground-muted mb-1.5">
-            Chapter {index + 1} · Name
-          </div>
-          <label className="group flex items-center gap-2 px-3 py-2 rounded-lg border border-border bg-background hover:border-accent focus-within:border-accent focus-within:ring-2 focus-within:ring-accent/20 transition-colors cursor-text">
+      <div className="gap-3 p-4">
+        <div className="text-[11px] font-bold uppercase tracking-wide text-foreground-muted mb-1.5">
+          Chapter {index + 1} · Name
+        </div>
+
+        <div className="flex-1 flex flex-row items-center justify-between">
+          <label className="group flex-1 flex items-center gap-2 px-3 py-2 rounded-lg border border-border bg-background hover:border-accent focus-within:border-accent focus-within:ring-2 focus-within:ring-accent/20 transition-colors cursor-text">
             <input
               value={titleDraft}
               placeholder="Untitled chapter"
@@ -99,43 +100,56 @@ export function ChapterEditorCard({
               Edit
             </span>
           </label>
+          <button
+            type="button"
+            onClick={onDelete}
+            className="text-foreground-muted hover:text-danger p-1.5 cursor-pointer ml-4"
+            aria-label="Delete chapter"
+          >
+            <TrashIcon size={16} />
+          </button>
+          <button
+            type="button"
+            onClick={() => setExpanded((v) => !v)}
+            className="text-foreground-muted hover:text-foreground p-1.5 cursor-pointer"
+            aria-label={expanded ? "Collapse chapter" : "Expand chapter"}
+          >
+            {expanded ? (
+              <ChevronDownIcon size={16} />
+            ) : (
+              <ChevronRightIcon size={16} />
+            )}
+          </button>
         </div>
-        <button
-          type="button"
-          onClick={onDelete}
-          className="text-foreground-muted hover:text-danger p-1.5 cursor-pointer"
-          aria-label="Delete chapter"
-        >
-          <TrashIcon size={16} />
-        </button>
-        <button
-          type="button"
-          onClick={() => setExpanded((v) => !v)}
-          className="text-foreground-muted hover:text-foreground p-1.5 cursor-pointer"
-          aria-label={expanded ? "Collapse chapter" : "Expand chapter"}
-        >
-          {expanded ? <ChevronDownIcon size={16} /> : <ChevronRightIcon size={16} />}
-        </button>
       </div>
 
       {expanded && (
         <div className="px-4 pb-4 flex flex-col gap-3 border-t border-border pt-4">
-          <div className="text-[11px] font-bold uppercase tracking-wide text-foreground-muted">Content Items</div>
+          <div className="text-[11px] font-bold uppercase tracking-wide text-foreground-muted">
+            Content Items
+          </div>
 
           {chapter.materials.length === 0 && (
-            <p className="text-[13px] text-foreground-muted">No content items yet.</p>
+            <p className="text-[13px] text-foreground-muted">
+              No content items yet.
+            </p>
           )}
 
           {chapter.materials.map((material) => {
             const Icon = MATERIAL_ICON[material.type];
             return (
-              <div key={material.id} className="flex items-center gap-3 rounded-xl border border-border p-3">
+              <div
+                key={material.id}
+                className="flex items-center gap-3 rounded-xl border border-border p-3"
+              >
                 <div
                   className={`w-9 h-9 rounded-lg flex items-center justify-center shrink-0 ${MATERIAL_ICON_WRAP[material.type]}`}
                 >
                   <Icon size={16} />
                 </div>
-                <span className="flex-1 text-[13.5px] font-medium text-foreground truncate">{material.title}</span>
+                <span className="flex-1 text-[13.5px] font-medium text-foreground truncate">
+                  {material.title}
+                </span>
                 <button
                   type="button"
                   onClick={() => onDeleteMaterial(material.id)}
@@ -149,7 +163,10 @@ export function ChapterEditorCard({
           })}
 
           {showAddForm ? (
-            <MaterialUploadForm onUpload={handleUpload} onCancel={() => setShowAddForm(false)} />
+            <MaterialUploadForm
+              onUpload={handleUpload}
+              onCancel={() => setShowAddForm(false)}
+            />
           ) : (
             <button
               type="button"
