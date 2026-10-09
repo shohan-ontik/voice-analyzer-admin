@@ -1,12 +1,9 @@
 import { DashboardStats } from "../components/dashboard/DashboardStats";
-import {
-  ClipboardClockIcon,
-  UploadCloudIcon,
-} from "../components/icons";
+import { ClipboardClockIcon, UploadCloudIcon } from "../components/icons";
 import { CreateModuleTrigger } from "../components/modules/CreateModuleTrigger";
 import { RecentActivityTable } from "../components/RecentActivityTable";
-import { dashboardPlaceholders } from "../lib/dashboardMockData";
 import { getRecentActivity } from "../lib/apiClient";
+import { dashboardPlaceholders } from "../lib/dashboardMockData";
 import { getSessionToken } from "../lib/session";
 import type { RecentActivityItem } from "../lib/types";
 
@@ -16,7 +13,9 @@ async function loadRecentActivity(): Promise<RecentActivityItem[]> {
   const token = await getSessionToken();
   if (!token) return [];
   try {
-    const result = await getRecentActivity(token, { pageSize: RECENT_ACTIVITY_LIMIT });
+    const result = await getRecentActivity(token, {
+      pageSize: RECENT_ACTIVITY_LIMIT,
+    });
     return result.items;
   } catch (err) {
     console.error("Failed to load recent activity:", err);
@@ -88,12 +87,6 @@ export default async function DashboardPage() {
           <h2 className="font-display font-bold text-[16px] text-foreground">
             Recent Activity
           </h2>
-          <button
-            type="button"
-            className="text-[13px] font-semibold text-accent"
-          >
-            View All
-          </button>
         </div>
         <RecentActivityTable rows={recentActivity} />
       </div>
