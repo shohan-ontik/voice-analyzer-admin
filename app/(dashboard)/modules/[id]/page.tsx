@@ -33,6 +33,8 @@ export default async function ModuleEditorPage(props: PageProps<"/modules/[id]">
     );
   }
 
+  const configuredExams = trainingModule.exams.filter((exam) => exam.scenario.trim() !== "").length;
+
   return (
     <div className="flex flex-col">
       <div className="px-10 pt-8 pb-32 max-w-[900px] w-full mx-auto flex flex-col gap-6">
@@ -65,9 +67,11 @@ export default async function ModuleEditorPage(props: PageProps<"/modules/[id]">
             </div>
             <div>
               <div className="font-display font-bold text-[15px] text-foreground">
-                Module Assessment {trainingModule.exam ? "· Configured" : "· Not set up"}
+                Module Assessments · {configuredExams}/{trainingModule.exams.length} set up
               </div>
-              <p className="text-[13px] text-foreground-muted">Set the pass mark, deadline, and scenario question.</p>
+              <p className="text-[13px] text-foreground-muted">
+                Set the pass mark, deadline, and scenario question for each of the 3 exams.
+              </p>
             </div>
           </div>
           <ArrowRightIcon size={16} className="text-foreground-muted shrink-0" />

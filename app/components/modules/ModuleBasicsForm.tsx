@@ -3,6 +3,7 @@
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 import type { AdminModuleDetail } from "../../lib/types";
+import { AlertDialog } from "../AlertDialog";
 import { TrashIcon } from "../icons";
 import { useToast } from "../toast/ToastProvider";
 import { readError } from "./readError";
@@ -32,6 +33,8 @@ export function ModuleBasicsForm({
 
   const [saving, setSaving] = useState<"draft" | "publish" | null>(null);
   const [saveError, setSaveError] = useState<string | null>(null);
+  // Publish failures (e.g. the one-module-per-month limit) are shown in a popup.
+  const [publishError, setPublishError] = useState<string | null>(null);
   const [deleting, setDeleting] = useState(false);
 
   async function handleSave(publish: boolean) {
@@ -53,8 +56,12 @@ export function ModuleBasicsForm({
       router.push("/modules");
     } catch (err) {
       const message = err instanceof Error ? err.message : "Failed to save.";
-      toast.error(publish ? `Failed to publish module. ${message}` : message);
-      setSaveError(message);
+      if (publish) {
+        setPublishError(message);
+      } else {
+        toast.error(message);
+        setSaveError(message);
+      }
     } finally {
       setSaving(null);
     }
@@ -131,6 +138,14 @@ export function ModuleBasicsForm({
           </button>
         </div>
       </div>
+
+      {publishError && (
+        <AlertDialog
+          title="Couldn't publish module"
+          message={publishError}
+          onClose={() => setPublishError(null)}
+        />
+      )}
     </>
   );
 }

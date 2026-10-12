@@ -152,6 +152,7 @@ export type ChapterScenario = {
 
 export type AdminExam = {
   id: string;
+  order: number;
   title: string;
   passMark: number;
   scenario: string;
@@ -168,7 +169,8 @@ export type AdminModuleDetail = {
   isActive: boolean;
   publishDate: string | null;
   chapters: AdminChapter[];
-  exam: AdminExam | null;
+  // Always the module's 3 exams, ordered.
+  exams: AdminExam[];
 };
 
 export type HealthCheckResult = {

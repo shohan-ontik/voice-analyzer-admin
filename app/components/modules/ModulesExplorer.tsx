@@ -3,6 +3,7 @@
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 import type { AdminModuleSummary } from "../../lib/types";
+import { AlertDialog } from "../AlertDialog";
 import { ModulesGrid } from "./ModulesGrid";
 import { ModulesPagination } from "./ModulesPagination";
 import { ModulesToolbar, type FilterKey } from "./ModulesToolbar";
@@ -23,6 +24,8 @@ export function ModulesExplorer({
   const [filter, setFilter] = useState<FilterKey>("all");
   const [pendingId, setPendingId] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
+  // Publish failures (e.g. the one-module-per-month limit) are shown in a popup.
+  const [publishError, setPublishError] = useState<string | null>(null);
 
   async function handleTogglePublish(m: AdminModuleSummary) {
     setPendingId(m.id);
@@ -37,7 +40,12 @@ export function ModulesExplorer({
       if (!res.ok) throw new Error(body?.error?.message ?? "Failed to update module.");
       router.refresh();
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Failed to update module.");
+      const message = err instanceof Error ? err.message : "Failed to update module.";
+      if (m.isActive) {
+        setError(message);
+      } else {
+        setPublishError(message);
+      }
     } finally {
       setPendingId(null);
     }
@@ -74,6 +82,14 @@ export function ModulesExplorer({
           rangeStart={rangeStart}
           rangeEnd={rangeEnd}
           rangeTotal={rangeTotal}
+        />
+      )}
+
+      {publishError && (
+        <AlertDialog
+          title="Couldn't publish module"
+          message={publishError}
+          onClose={() => setPublishError(null)}
         />
       )}
     </>

@@ -8,12 +8,16 @@ import { useToast } from "../toast/ToastProvider";
 import { ChapterEditorCard } from "./ChapterEditorCard";
 import { readError } from "./readError";
 
+const MAX_CHAPTERS = 3;
+
 export function ChapterBuilder({ moduleId, chapters }: { moduleId: string; chapters: AdminChapter[] }) {
   const router = useRouter();
   const toast = useToast();
   const [error, setError] = useState<string | null>(null);
+  const maxChaptersReached = chapters.length >= MAX_CHAPTERS;
 
   async function handleAddChapter() {
+    if (maxChaptersReached) return;
     setError(null);
     const res = await fetch(`/api/modules/${moduleId}/chapters`, {
       method: "POST",
@@ -96,7 +100,9 @@ export function ChapterBuilder({ moduleId, chapters }: { moduleId: string; chapt
         <button
           type="button"
           onClick={handleAddChapter}
-          className="flex items-center gap-1.5 text-[13px] font-semibold text-accent cursor-pointer"
+          disabled={maxChaptersReached}
+          title={maxChaptersReached ? `A module can have at most ${MAX_CHAPTERS} chapters.` : undefined}
+          className="flex items-center gap-1.5 text-[13px] font-semibold text-accent cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
         >
           <PlusIcon size={14} />
           Add Chapter

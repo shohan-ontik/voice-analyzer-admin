@@ -409,12 +409,13 @@ export function deleteMaterial(
   );
 }
 
-export function upsertExam(
+export function updateExam(
   token: string,
   moduleId: string,
+  examId: string,
   patch: { scenario?: string; deadlineDays?: number | null; passMark?: number },
 ) {
-  return request<AdminExam>(`/admin/modules/${moduleId}/exam`, {
+  return request<AdminExam>(`/admin/modules/${moduleId}/exams/${examId}`, {
     method: "PUT",
     token,
     body: patch,
