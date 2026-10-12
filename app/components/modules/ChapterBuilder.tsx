@@ -1,9 +1,11 @@
 "use client";
 
 import { useRouter } from "next/navigation";
-import { useState } from "react";
+import { useState, useTransition } from "react";
+import { PLACEHOLDER_CHAPTER_TITLE } from "../../lib/constants";
 import type { AdminChapter } from "../../lib/types";
 import { PlusIcon } from "../icons";
+import { Spinner } from "../Spinner";
 import { useToast } from "../toast/ToastProvider";
 import { ChapterEditorCard } from "./ChapterEditorCard";
 import { readError } from "./readError";
@@ -14,21 +16,33 @@ export function ChapterBuilder({ moduleId, chapters }: { moduleId: string; chapt
   const router = useRouter();
   const toast = useToast();
   const [error, setError] = useState<string | null>(null);
+  const [creating, setCreating] = useState(false);
+  const [isRefreshing, startRefresh] = useTransition();
+  // Covers both the create request and the page refresh that follows it,
+  // since the new chapter only shows up once the refresh lands.
+  const addingChapter = creating || isRefreshing;
   const maxChaptersReached = chapters.length >= MAX_CHAPTERS;
 
   async function handleAddChapter() {
-    if (maxChaptersReached) return;
+    if (maxChaptersReached || addingChapter) return;
     setError(null);
-    const res = await fetch(`/api/modules/${moduleId}/chapters`, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ title: "New Chapter" }),
-    });
-    if (!res.ok) {
-      setError(await readError(res, "Failed to add chapter."));
-      return;
+    setCreating(true);
+    try {
+      const res = await fetch(`/api/modules/${moduleId}/chapters`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ title: PLACEHOLDER_CHAPTER_TITLE }),
+      });
+      if (!res.ok) {
+        setError(await readError(res, "Failed to add chapter."));
+        return;
+      }
+      startRefresh(() => router.refresh());
+    } catch {
+      setError("Failed to add chapter. Please check your connection and try again.");
+    } finally {
+      setCreating(false);
     }
-    router.refresh();
   }
 
   async function handleUpdateChapterTitle(chapterId: string, newTitle: string) {
@@ -100,12 +114,12 @@ export function ChapterBuilder({ moduleId, chapters }: { moduleId: string; chapt
         <button
           type="button"
           onClick={handleAddChapter}
-          disabled={maxChaptersReached}
+          disabled={maxChaptersReached || addingChapter}
           title={maxChaptersReached ? `A module can have at most ${MAX_CHAPTERS} chapters.` : undefined}
           className="flex items-center gap-1.5 text-[13px] font-semibold text-accent cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
         >
-          <PlusIcon size={14} />
-          Add Chapter
+          {addingChapter ? <Spinner /> : <PlusIcon size={14} />}
+          {addingChapter ? "Adding…" : "Add Chapter"}
         </button>
       </div>
 

@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { ApiClientError, createChapter } from "@/app/lib/apiClient";
+import { PLACEHOLDER_CHAPTER_TITLE } from "@/app/lib/constants";
 import { generateChapterScenario } from "@/app/lib/generateChapterScenario";
 import { getSessionToken } from "@/app/lib/session";
 
@@ -21,8 +22,11 @@ export async function POST(request: Request, { params }: { params: Promise<{ id:
   // The chapter's roleplay scenario has no manual editor — it's generated
   // from the topic automatically. A generation failure shouldn't block
   // creating the chapter, so scenario is just omitted on failure (the
-  // backend falls back to its own placeholder).
-  const scenario = await generateChapterScenario(title, description);
+  // backend falls back to its own placeholder). A placeholder title isn't a
+  // real topic yet, so generation is skipped — renaming the chapter
+  // regenerates the scenario from the real title.
+  const scenario =
+    title === PLACEHOLDER_CHAPTER_TITLE && !description ? null : await generateChapterScenario(title, description);
 
   try {
     const chapter = await createChapter(token, id, { title, description, scenario: scenario ?? undefined });
