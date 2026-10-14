@@ -15,6 +15,12 @@ export async function POST(request: Request) {
   try {
     const { accessToken, user } = await loginRequest(identifier, password);
 
+    // The backend matches usernames case-insensitively; usernames must match exactly.
+    // Phone numbers contain no letters, so only letter-bearing identifiers are checked.
+    if (/[a-z]/i.test(identifier) && identifier !== user.username) {
+      return NextResponse.json({ error: { message: "Invalid username or password." } }, { status: 401 });
+    }
+
     if (user.role !== "admin") {
       return NextResponse.json(
         { error: { message: "This login is for administrators only." } },

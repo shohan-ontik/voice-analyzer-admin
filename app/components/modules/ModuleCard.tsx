@@ -65,8 +65,10 @@ export function ModuleCard({
             </span>
             <span className="inline-flex items-center gap-1.5">
               <ClipboardIcon size={14} />
-              <span className="font-semibold text-foreground">{m.examCount}</span>
-              {m.examCount === 1 ? "Exam" : "Exams"}
+              <span className="font-semibold text-foreground">
+                {m.examsConfiguredCount}/{m.examCount}
+              </span>
+              {m.examCount === 1 ? "Exam" : "Exams"} set
             </span>
             <span className="inline-flex items-center gap-1.5">
               <ClockIcon size={14} />

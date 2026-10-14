@@ -2,10 +2,9 @@ import { DashboardStats } from "../components/dashboard/DashboardStats";
 import { ClipboardClockIcon, UploadCloudIcon } from "../components/icons";
 import { CreateModuleTrigger } from "../components/modules/CreateModuleTrigger";
 import { RecentActivityTable } from "../components/RecentActivityTable";
-import { getRecentActivity } from "../lib/apiClient";
-import { dashboardPlaceholders } from "../lib/dashboardMockData";
+import { getAdminStatsSummary, getRecentActivity } from "../lib/apiClient";
 import { getSessionToken } from "../lib/session";
-import type { RecentActivityItem } from "../lib/types";
+import type { AdminStatsSummary, RecentActivityItem } from "../lib/types";
 
 const RECENT_ACTIVITY_LIMIT = 5;
 
@@ -23,8 +22,22 @@ async function loadRecentActivity(): Promise<RecentActivityItem[]> {
   }
 }
 
+async function loadStats(): Promise<AdminStatsSummary | null> {
+  const token = await getSessionToken();
+  if (!token) return null;
+  try {
+    return await getAdminStatsSummary(token);
+  } catch (err) {
+    console.error("Failed to load stats:", err);
+    return null;
+  }
+}
+
 export default async function DashboardPage() {
-  const recentActivity = await loadRecentActivity();
+  const [recentActivity, stats] = await Promise.all([
+    loadRecentActivity(),
+    loadStats(),
+  ]);
 
   return (
     <div className="px-10 py-8 max-w-[1240px] w-full mx-auto flex flex-col gap-6">
@@ -56,7 +69,7 @@ export default async function DashboardPage() {
                 Modules Published
               </div>
               <div className="font-display font-bold text-[20px] text-foreground">
-                {dashboardPlaceholders.modulesPublished}
+                {stats ? stats.modulesPublished.toLocaleString() : "—"}
               </div>
             </div>
           </div>
@@ -67,10 +80,10 @@ export default async function DashboardPage() {
             </div>
             <div>
               <div className="text-[12.5px] text-foreground-muted">
-                Pending Exams
+                Draft Modules
               </div>
               <div className="font-display font-bold text-[20px] text-foreground">
-                {dashboardPlaceholders.pendingExams}
+                {stats ? stats.draftModules.toLocaleString() : "—"}
               </div>
             </div>
           </div>

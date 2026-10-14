@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { ChevronLeftIcon, ChevronRightIcon } from "../icons";
+import type { FilterKey } from "./ModulesToolbar";
 
 function getPageNumbers(current: number, total: number): (number | "ellipsis")[] {
   if (total <= 5) return Array.from({ length: total }, (_, i) => i + 1);
@@ -16,18 +17,24 @@ function getPageNumbers(current: number, total: number): (number | "ellipsis")[]
   return result;
 }
 
-function pageHref(p: number) {
-  return p <= 1 ? "/modules" : `/modules?page=${p}`;
+function pageHref(p: number, filter: FilterKey) {
+  const params = new URLSearchParams();
+  if (filter !== "all") params.set("filter", filter);
+  if (p > 1) params.set("page", String(p));
+  const qs = params.toString();
+  return qs ? `/modules?${qs}` : "/modules";
 }
 
 export function ModulesPagination({
   page,
+  filter,
   totalPages,
   rangeStart,
   rangeEnd,
   rangeTotal,
 }: {
   page: number;
+  filter: FilterKey;
   totalPages: number;
   rangeStart: number;
   rangeEnd: number;
@@ -42,7 +49,7 @@ export function ModulesPagination({
       <div className="flex items-center gap-1.5">
         {page > 1 ? (
           <Link
-            href={pageHref(page - 1)}
+            href={pageHref(page - 1, filter)}
             className="w-8 h-8 rounded-lg border border-border flex items-center justify-center text-foreground-muted"
             aria-label="Previous page"
           >
@@ -65,7 +72,7 @@ export function ModulesPagination({
           ) : (
             <Link
               key={p}
-              href={pageHref(p)}
+              href={pageHref(p, filter)}
               className={`w-8 h-8 rounded-lg flex items-center justify-center text-[13px] font-semibold ${
                 p === page ? "bg-accent text-accent-ink" : "text-foreground-muted hover:bg-background"
               }`}
@@ -77,7 +84,7 @@ export function ModulesPagination({
 
         {page < totalPages ? (
           <Link
-            href={pageHref(page + 1)}
+            href={pageHref(page + 1, filter)}
             className="w-8 h-8 rounded-lg border border-border flex items-center justify-center text-foreground-muted"
             aria-label="Next page"
           >

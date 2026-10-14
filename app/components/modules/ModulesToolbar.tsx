@@ -18,7 +18,7 @@ export function ModulesToolbar({
   query: string;
   onQueryChange: Dispatch<SetStateAction<string>>;
   filter: FilterKey;
-  onFilterChange: Dispatch<SetStateAction<FilterKey>>;
+  onFilterChange: (key: FilterKey) => void;
 }) {
   return (
     <div className="flex items-center gap-3 flex-wrap">

@@ -12,16 +12,17 @@ export function ModulesExplorer({
   items,
   total,
   page,
+  filter,
   pageSize,
 }: {
   items: AdminModuleSummary[];
   total: number;
   page: number;
+  filter: FilterKey;
   pageSize: number;
 }) {
   const router = useRouter();
   const [query, setQuery] = useState("");
-  const [filter, setFilter] = useState<FilterKey>("all");
   const [pendingId, setPendingId] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
   // Publish failures (e.g. the one-module-per-month limit) are shown in a popup.
@@ -51,25 +52,28 @@ export function ModulesExplorer({
     }
   }
 
+  // The filter lives in the URL and is applied by the API; switching it
+  // starts over from the first page.
+  function handleFilterChange(next: FilterKey) {
+    router.push(next === "all" ? "/modules" : `/modules?filter=${next}`);
+  }
+
   const totalPages = Math.max(1, Math.ceil(total / pageSize));
 
-  // The modules API doesn't support search or publish-status filtering
-  // server-side, so both only narrow the modules already loaded for the
-  // current page — the range/total below reflect what's actually on screen
-  // whenever a filter is active.
-  const isFiltered = filter !== "all" || query.trim() !== "";
-  const visibleModules = items.filter((m) => {
-    const matchesFilter = filter === "all" || (filter === "published" ? m.isActive : !m.isActive);
-    const matchesQuery = query.trim() === "" || m.title.toLowerCase().includes(query.trim().toLowerCase());
-    return matchesFilter && matchesQuery;
-  });
-  const rangeTotal = isFiltered ? visibleModules.length : total;
-  const rangeStart = isFiltered ? (rangeTotal === 0 ? 0 : 1) : total === 0 ? 0 : (page - 1) * pageSize + 1;
-  const rangeEnd = isFiltered ? rangeTotal : Math.min(page * pageSize, total);
+  // The modules API doesn't support search, so the query only narrows the
+  // modules already loaded for the current page — the range/total below
+  // reflect what's actually on screen whenever a search is active.
+  const isSearching = query.trim() !== "";
+  const visibleModules = isSearching
+    ? items.filter((m) => m.title.toLowerCase().includes(query.trim().toLowerCase()))
+    : items;
+  const rangeTotal = isSearching ? visibleModules.length : total;
+  const rangeStart = isSearching ? (rangeTotal === 0 ? 0 : 1) : total === 0 ? 0 : (page - 1) * pageSize + 1;
+  const rangeEnd = isSearching ? rangeTotal : Math.min(page * pageSize, total);
 
   return (
     <>
-      <ModulesToolbar query={query} onQueryChange={setQuery} filter={filter} onFilterChange={setFilter} />
+      <ModulesToolbar query={query} onQueryChange={setQuery} filter={filter} onFilterChange={handleFilterChange} />
 
       {error && <div className="text-[13px] text-danger">{error}</div>}
 
@@ -78,6 +82,7 @@ export function ModulesExplorer({
       {total > 0 && (
         <ModulesPagination
           page={page}
+          filter={filter}
           totalPages={totalPages}
           rangeStart={rangeStart}
           rangeEnd={rangeEnd}

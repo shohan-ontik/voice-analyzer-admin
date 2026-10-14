@@ -3,7 +3,7 @@
 import { useRouter } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
 import type { AdminUser } from "../lib/types";
-import { BellIcon, HelpCircleIcon, LogoutIcon } from "./icons";
+import { HelpCircleIcon, LogoutIcon } from "./icons";
 
 function initials(name: string) {
   const parts = name.trim().split(/\s+/);
@@ -48,15 +48,6 @@ export function TopBar() {
   return (
     <div className="h-16 flex-shrink-0 border-b border-border bg-background-elevated flex items-center gap-4 px-6">
       <div className="flex-1" />
-
-      <button
-        type="button"
-        className="relative text-foreground-muted hover:text-foreground p-1.5"
-        aria-label="Notifications"
-      >
-        <BellIcon size={19} />
-      </button>
-
       <a
         href="mailto:support@salestrainpro.com"
         className="text-foreground-muted hover:text-foreground p-1.5"

@@ -70,6 +70,10 @@ export type AdminStatsSummary = {
   examsTaken: number;
   // Null when there are no practice sessions yet.
   avgProficiency: number | null;
+  // Modules that are published (isActive).
+  modulesPublished: number;
+  // Modules that are not published yet.
+  draftModules: number;
 };
 
 // Mirrors voice-analyzer-api's Topic model / /admin/topics endpoints.
@@ -115,6 +119,8 @@ export type AdminModuleSummary = {
   isActive: boolean;
   chapterCount: number;
   examCount: number;
+  // Exams with a scenario written; all of them are required to publish.
+  examsConfiguredCount: number;
   updatedAt: string;
 };
 
