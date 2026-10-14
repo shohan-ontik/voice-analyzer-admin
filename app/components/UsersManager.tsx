@@ -314,7 +314,7 @@ password: ${credentialResult.tempPassword}`}
               <th className="px-5 py-3">Avg. Score</th>
               <th className="px-5 py-3">Last Active</th>
               <th className="px-5 py-3">Status</th>
-              <th className="px-5 py-3 text-right">Actions</th>
+              <th className="px-5 py-3 text-center">Actions</th>
             </tr>
           </thead>
           <tbody>
